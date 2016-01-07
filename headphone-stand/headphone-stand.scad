@@ -13,6 +13,22 @@ hookHeadphoneDent = 40;
 hookEndLength = 20;
 hookDentInsetHeight = 10;
 
+module createTJoint(materialThickness, boltWidth, boltHeight, nutWidth, nutHeight, endspacing = 2) {
+    translate([-(boltWidth / 2), 0, 0]) {
+        translate([(boltWidth / 2) - (nutWidth / 2), 0, 0]) {
+            color([0,0,1]) cube([nutWidth, materialThickness, nutHeight]);
+        }
+        
+        translate([0, 0, nutHeight - endspacing - boltHeight]) {
+            color([0,0,1]) cube([boltWidth, materialThickness, boltHeight]);
+        }
+    }
+    
+    translate([0, (materialThickness / 2), -materialThickness]) {
+        color([0,1,0]) cylinder(materialThickness, d=nutWidth, true);
+    }
+}
+
 module pillarTopTriangle() {
     translate([0, pillarArcylicThickness, 0]) {
         rotate([180, 0, 0]) {
@@ -41,7 +57,7 @@ module pillarTopTriangle() {
 }
 
 module pillarBottomTriangle(triangleThickness = pillarArcylicThickness) {
-    color([0,0,0]) polyhedron (	
+    color([1,0,0]) polyhedron (	
         points = [
             [0, 0, pillarBottomTriableHeight],
             [0, triangleThickness, pillarBottomTriableHeight],
@@ -78,12 +94,20 @@ module singlePillar() {
                 }
             }
             
-            translate([-pillarBottomTriableLength, 0, -baseHeight]) {
-                cube([pillarBottomTriableLength, pillarArcylicThickness, baseHeight]);
+            translate([(-pillarBottomTriableLength / 4), 0, -baseHeight]) {
+                cube([(pillarWidth / 2) - (pillarArcylicThickness / 2) + (pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
             }
             
-            translate([pillarWidth, 0, -baseHeight]) {
-                cube([pillarBottomTriableLength, pillarArcylicThickness, baseHeight]);
+            translate([-pillarBottomTriableLength, 0, -baseHeight]) {
+                cube([(pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
+            }
+            
+            translate([(pillarWidth / 2) + (pillarArcylicThickness / 2), 0, -baseHeight]) {
+                cube([(pillarWidth / 2) - (pillarArcylicThickness / 2) + (pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
+            }
+            
+            translate([pillarWidth + pillarBottomTriableLength - (pillarBottomTriableLength / 4), 0, -baseHeight]) {
+                cube([(pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
             }
         }
     }
@@ -109,14 +133,7 @@ module standHook() {
     }
 }
 
-module standPillar() {
-    difference() {
-        singlePillar();
-        translate([-(pillarArcylicThickness / 2), -(pillarArcylicThickness / 2), baseHeight]) {
-            cube([pillarArcylicThickness, pillarArcylicThickness, (pillarHeight / 2)]);
-        }
-    }
-    
+module standSupport() {
     rotate([0, 0, 90]) {
         difference() {
             singlePillar();
@@ -136,8 +153,25 @@ module standPillar() {
                     pillarBottomTriangle(pillarArcylicThickness * 2);
                 }
             }
-         }      
+         }
       }
+    }
+}
+
+module standPillar(withTjoints = true) {
+    difference() {
+        singlePillar();
+        translate([-(pillarArcylicThickness / 2), -(pillarArcylicThickness / 2), baseHeight]) {
+            cube([pillarArcylicThickness, pillarArcylicThickness, (pillarHeight / 2)]);
+        }
+        
+        translate([(pillarWidth / 2) + (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), 0]) {
+            createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, baseHeight + 2.5 + 1, 1);
+        }
+        
+        translate([-(pillarWidth / 2) - (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), 0]) {
+            createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, baseHeight + 2.5 + 1, 1);
+        }
     }
     
     standHook();
@@ -152,8 +186,43 @@ module base() {
         cylinder(h=baseHeight, d1=baseDiameter, d2=baseDiameter);
         
         standPillar();
+        
+        translate([(pillarWidth / 2) + (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), pillarArcylicThickness]) {
+            createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
+        }
+        
+        translate([-(pillarWidth / 2) - (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), pillarArcylicThickness]) {
+            createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
+        }
     }
 }
 
-standPillar();
-base();
+module render(projectionMode) {
+    if (!projectionMode) {
+        standPillar();
+        standSupport();
+        base();
+    } else {
+        projection(cut = false) {
+            translate([0,0, (pillarArcylicThickness / 2)]) {
+                rotate([-90, 0, 0]) {
+                    standPillar();
+                }
+            }
+            
+            translate([(baseDiameter / 2) + (pillarWidth / 2) + 3, (baseDiameter / 2), 0]) {
+                base();
+            }
+            
+            translate([-(pillarBottomTriableLength * 2) - pillarWidth - 3, pillarHeight - hookHeight, 0]) {
+                rotate([90, 0, 0]) {
+                    rotate([0, 0, 90]) {
+                        standSupport();
+                    }
+                }
+            }
+        }
+    }
+}
+
+render(true);
