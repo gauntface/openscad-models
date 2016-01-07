@@ -95,15 +95,15 @@ module singlePillar() {
             }
             
             translate([(-pillarBottomTriableLength / 4), 0, -baseHeight]) {
-                cube([(pillarWidth / 2) - (pillarArcylicThickness / 2) + (pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
+                cube([(pillarWidth / 2) - (pillarArcylicThickness / 2), pillarArcylicThickness, baseHeight]);
             }
             
             translate([-pillarBottomTriableLength, 0, -baseHeight]) {
                 cube([(pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
             }
             
-            translate([(pillarWidth / 2) + (pillarArcylicThickness / 2), 0, -baseHeight]) {
-                cube([(pillarWidth / 2) - (pillarArcylicThickness / 2) + (pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
+            translate([(pillarWidth / 2) + (pillarArcylicThickness / 2) + (pillarBottomTriableLength / 4), 0, -baseHeight]) {
+                cube([(pillarWidth / 2) - (pillarArcylicThickness / 2), pillarArcylicThickness, baseHeight]);
             }
             
             translate([pillarWidth + pillarBottomTriableLength - (pillarBottomTriableLength / 4), 0, -baseHeight]) {
@@ -186,6 +186,7 @@ module base() {
         cylinder(h=baseHeight, d1=baseDiameter, d2=baseDiameter);
         
         standPillar();
+        standSupport();
         
         translate([(pillarWidth / 2) + (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), pillarArcylicThickness]) {
             createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
