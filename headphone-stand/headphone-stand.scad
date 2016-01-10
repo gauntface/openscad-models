@@ -1,3 +1,19 @@
+/**
+       Copyright 2016 Matthew Gaunt
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+**/
+
 baseHeight = 6;
 baseDiameter = 160;
 
@@ -18,12 +34,12 @@ module createTJoint(materialThickness, boltWidth, boltHeight, nutWidth, nutHeigh
         translate([(boltWidth / 2) - (nutWidth / 2), 0, 0]) {
             color([0,0,1]) cube([nutWidth, materialThickness, nutHeight]);
         }
-        
+
         translate([0, 0, nutHeight - endspacing - boltHeight]) {
             color([0,0,1]) cube([boltWidth, materialThickness, boltHeight]);
         }
     }
-    
+
     translate([0, (materialThickness / 2), -materialThickness]) {
         color([0,1,0]) cylinder(materialThickness, d=nutWidth, true);
     }
@@ -32,7 +48,7 @@ module createTJoint(materialThickness, boltWidth, boltHeight, nutWidth, nutHeigh
 module pillarTopTriangle() {
     translate([0, pillarArcylicThickness, 0]) {
         rotate([180, 0, 0]) {
-            polyhedron (	
+            polyhedron (
                 points = [
                     [0, 0, pillarBottomTriableHeight],
                     [0, pillarArcylicThickness, pillarBottomTriableHeight],
@@ -57,7 +73,7 @@ module pillarTopTriangle() {
 }
 
 module pillarBottomTriangle(triangleThickness = pillarArcylicThickness) {
-    color([1,0,0]) polyhedron (	
+    color([1,0,0]) polyhedron (
         points = [
             [0, 0, pillarBottomTriableHeight],
             [0, triangleThickness, pillarBottomTriableHeight],
@@ -83,29 +99,29 @@ module singlePillar() {
     translate([-(pillarWidth / 2), -(pillarArcylicThickness / 2), baseHeight]) {
         union() {
             cube([pillarWidth, pillarArcylicThickness, pillarHeight]);
-            
+
             translate([pillarWidth, 0, 0]) {
                 pillarBottomTriangle();
             }
-            
+
             translate([0, pillarArcylicThickness, 0]) {
                 rotate([0, 0, 180]) {
                     pillarBottomTriangle();
                 }
             }
-            
+
             translate([(-pillarBottomTriableLength / 4), 0, -baseHeight]) {
                 cube([(pillarWidth / 2) - (pillarArcylicThickness / 2), pillarArcylicThickness, baseHeight]);
             }
-            
+
             translate([-pillarBottomTriableLength, 0, -baseHeight]) {
                 cube([(pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
             }
-            
+
             translate([(pillarWidth / 2) + (pillarArcylicThickness / 2) + (pillarBottomTriableLength / 4), 0, -baseHeight]) {
                 cube([(pillarWidth / 2) - (pillarArcylicThickness / 2), pillarArcylicThickness, baseHeight]);
             }
-            
+
             translate([pillarWidth + pillarBottomTriableLength - (pillarBottomTriableLength / 4), 0, -baseHeight]) {
                 cube([(pillarBottomTriableLength / 4), pillarArcylicThickness, baseHeight]);
             }
@@ -117,15 +133,15 @@ module standHook() {
     translate([pillarWidth / 2, -(pillarArcylicThickness / 2), pillarHeight + baseHeight - hookHeight]) {
         union() {
             cube([hookLength, pillarArcylicThickness, hookHeight]);
-            
+
             translate([hookLength, 0, 0]) {
                 cube([hookHeadphoneDent, pillarArcylicThickness, hookHeight - hookDentInsetHeight]);
             }
-            
+
             translate([hookLength + hookHeadphoneDent, 0, 0]) {
                 cube([hookEndLength, pillarArcylicThickness, hookHeight]);
             }
-            
+
             translate([0, 0, 0]) {
                 pillarTopTriangle();
             }
@@ -140,13 +156,13 @@ module standSupport() {
             translate([-(pillarArcylicThickness / 2), -(pillarArcylicThickness / 2), baseHeight + (pillarHeight / 2)]) {
                 cube([pillarArcylicThickness, pillarArcylicThickness, (pillarHeight / 2)]);
             }
-            
+
             translate([-pillarBottomTriableLength - (pillarArcylicThickness / 2), pillarArcylicThickness, baseHeight + pillarHeight]) {
                 rotate([180, 0, 0]) {
                     pillarBottomTriangle(pillarArcylicThickness * 2);
                 }
             }
-    
+
             mirror([1, 0, 0]) {
              translate([-pillarBottomTriableLength - (pillarArcylicThickness / 2), pillarArcylicThickness, baseHeight + pillarHeight]) {
                 rotate([180, 0, 0]) {
@@ -164,18 +180,18 @@ module standPillar(withTjoints = true) {
         translate([-(pillarArcylicThickness / 2), -(pillarArcylicThickness / 2), baseHeight]) {
             cube([pillarArcylicThickness, pillarArcylicThickness, (pillarHeight / 2)]);
         }
-        
+
         translate([(pillarWidth / 2) + (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), 0]) {
             createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, baseHeight + 2.5 + 1, 1);
         }
-        
+
         translate([-(pillarWidth / 2) - (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), 0]) {
             createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, baseHeight + 2.5 + 1, 1);
         }
     }
-    
+
     standHook();
-    
+
     rotate([0, 0, 180]) {
         standHook();
     }
@@ -184,14 +200,14 @@ module standPillar(withTjoints = true) {
 module base() {
     difference() {
         cylinder(h=baseHeight, d1=baseDiameter, d2=baseDiameter);
-        
+
         standPillar();
         standSupport();
-        
+
         translate([(pillarWidth / 2) + (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), pillarArcylicThickness]) {
             createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
         }
-        
+
         translate([-(pillarWidth / 2) - (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), pillarArcylicThickness]) {
             createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
         }
@@ -210,11 +226,11 @@ module render(projectionMode) {
                     standPillar();
                 }
             }
-            
+
             translate([(baseDiameter / 2) + (pillarWidth / 2) + 3, (baseDiameter / 2), 0]) {
                 base();
             }
-            
+
             translate([-(pillarBottomTriableLength * 2) - pillarWidth - 3, pillarHeight - hookHeight, 0]) {
                 rotate([90, 0, 0]) {
                     rotate([0, 0, 90]) {
