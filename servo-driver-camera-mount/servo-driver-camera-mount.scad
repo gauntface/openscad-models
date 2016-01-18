@@ -22,6 +22,7 @@ m3ClearanceHole = 3.4;
 m2ClearanceDiameter = 2.4;
 
 tjointInset = 3;
+teethWidth = 10;
 
 // Pan Tilt
 panTiltBaseWidth = 33;
@@ -112,7 +113,10 @@ module topLayer() {
             }
         }
         
-        allTopTJoints();
+        allTopTJoints(true);
+        shortSides();
+        longSideFront();
+        longSideBack();
     }
 }
 
@@ -127,54 +131,122 @@ module baseLayer() {
             servoDriverScrewHoles(acrylicThickness + 4);
         }
         
-        allBaseTJoints();
+        allBaseTJoints(true);
+        shortSides();
+        longSideFront();
+        longSideBack();
+    }
+}
+
+module shortSide() {
+    cube([acrylicThickness, caseDepth - (tjointInset * 2), caseHeight]);
+    
+    shortTeethWidth = teethWidth / 2;
+    
+    // Top Teeth
+    translate([0, ((caseDepth - (tjointInset * 2)) / 4) - (shortTeethWidth / 2), caseHeight]) {
+        cube([acrylicThickness, shortTeethWidth, acrylicThickness]);
+    }
+    
+    translate([0, ((3 * (caseDepth - (tjointInset * 2)) / 4)) - (shortTeethWidth / 2), caseHeight]) {
+        cube([acrylicThickness, shortTeethWidth, acrylicThickness]);
+    }
+    
+    // Bottom Teeth
+    translate([0, ((caseDepth - (tjointInset * 2)) / 4) - (shortTeethWidth / 2), -acrylicThickness]) {
+        cube([acrylicThickness, shortTeethWidth, acrylicThickness]);
+    }
+    
+    translate([0, ((3 * (caseDepth - (tjointInset * 2)) / 4)) - (shortTeethWidth / 2), -acrylicThickness]) {
+        cube([acrylicThickness, shortTeethWidth, acrylicThickness]);
+    }
+}
+
+module shortSideFront() {
+    difference() {
+        translate([tjointInset, tjointInset, acrylicThickness]) {
+            shortSide();        
+        }
+        allBaseTJoints(true);
+        allTopTJoints(true);
+    }
+}
+
+module shortSideBack() {
+    difference() {
+        translate([caseWidth - acrylicThickness - tjointInset, tjointInset, acrylicThickness]) {
+            shortSide();
+        }
+        allBaseTJoints(true);
+        allTopTJoints(true);
     }
 }
 
 module shortSides() {
-    difference() {
-        translate([tjointInset, tjointInset, acrylicThickness]) {
-            cube([acrylicThickness, caseDepth - (tjointInset * 2), caseHeight]);        
+    shortSideFront();
+    shortSideBack();
+}
+
+module longSide(isBackSide = false) {
+    cube([caseWidth - (tjointInset * 2), acrylicThickness, caseHeight]);
+            
+    // Top Teeth
+    if (isBackSide) {
+        shortToothWidth = teethWidth / 2;
+        translate([((caseWidth - (tjointInset * 2)) / 4), 0, caseHeight]) {
+            cube([shortToothWidth, acrylicThickness, acrylicThickness]);
         }
-        allBaseTJoints();
-        allTopTJoints();
+    } else {
+        translate([((caseWidth - (tjointInset * 2)) / 4) - (teethWidth / 2), 0, caseHeight]) {
+            cube([teethWidth, acrylicThickness, acrylicThickness]);
+        }
     }
     
-    difference() {
-        translate([caseWidth - acrylicThickness - tjointInset, tjointInset, acrylicThickness]) {
-            cube([acrylicThickness, caseDepth - (tjointInset * 2), caseHeight]);
-        }
-        allBaseTJoints();
-        allTopTJoints();
+    translate([((3 * (caseWidth - (tjointInset * 2)) / 4)) - (teethWidth / 2), 0, caseHeight]) {
+        cube([teethWidth, acrylicThickness, acrylicThickness]);
+    }
+            
+    // Bottom Teeth
+    translate([((caseWidth - (tjointInset * 2)) / 4) - (teethWidth / 2), 0, -acrylicThickness]) {
+        cube([teethWidth, acrylicThickness, acrylicThickness]);
+    }
+    
+    translate([((3 * (caseWidth - (tjointInset * 2)) / 4)) - (teethWidth / 2), 0, -acrylicThickness]) {
+        cube([teethWidth, acrylicThickness, acrylicThickness]);
     }
 }
 
-module longSides() {
+module longSideFront() {
     difference() {
         translate([tjointInset, tjointInset, acrylicThickness]) {
-            cube([caseWidth - (tjointInset * 2), acrylicThickness, caseHeight]);
-        }
-        allBaseTJoints();
-        allTopTJoints();
-    }
-    
-    difference() {
-        translate([tjointInset, caseDepth - acrylicThickness - tjointInset, acrylicThickness]) {
-            cube([caseWidth - (tjointInset * 2), acrylicThickness, caseHeight]);
-        }
-        allBaseTJoints();
-        allTopTJoints();
-    }
-}
-
-module createTJoint(materialThickness, boltWidth, boltHeight, nutWidth, nutHeight, endspacing = 2) {
-    translate([-(boltWidth / 2), 0, 0]) {
-        translate([(boltWidth / 2) - (nutWidth / 2), 0, 0]) {
-            cube([nutWidth, materialThickness, nutHeight]);
+            longSide();
         }
         
-        translate([0, 0, nutHeight - endspacing - boltHeight]) {
-            cube([boltWidth, materialThickness, boltHeight]);
+        allBaseTJoints(true);
+        allTopTJoints(true);
+    }
+}
+
+module longSideBack() {
+    difference() {
+        translate([tjointInset, caseDepth - acrylicThickness - tjointInset, acrylicThickness]) {
+            longSide(true);
+        }
+        allBaseTJoints(true);
+        allTopTJoints(true);
+    }
+}
+
+module createTJoint(materialThickness, boltWidth, boltHeight, nutWidth, nutHeight, isCutOut = false, endspacing = 2) {
+    cutOutThickness = isCutOut ? (materialThickness * 2) : materialThickness;
+    paddingDiscount = isCutOut ? (materialThickness / 2) : 0;
+    translate([-(boltWidth / 2), 0, 0]) {
+        translate([(boltWidth / 2) - (nutWidth / 2), -paddingDiscount, 0]) {
+            cube([nutWidth, cutOutThickness, nutHeight]);
+        }
+        
+        translate([0, -paddingDiscount, nutHeight - endspacing - boltHeight]) {
+            cube([boltWidth, cutOutThickness, boltHeight]);
         }
     }
     
@@ -183,38 +255,78 @@ module createTJoint(materialThickness, boltWidth, boltHeight, nutWidth, nutHeigh
     }
 }
 
-module allBaseTJoints() {
+module allBaseTJoints(isCutOut = false) {
     translate([acrylicThickness + tjointInset, caseDepth / 2, acrylicThickness]) {
         rotate([0, 0, 90]) {
-            createTJoint(acrylicThickness, 5.5, 2.5, m3ClearanceHole, 7);
+            createTJoint(acrylicThickness, 5.5, 2.5, m3ClearanceHole, 7, isCutOut);
         }
     }
     
     translate([caseWidth - tjointInset, caseDepth / 2, acrylicThickness]) {
         rotate([0, 0, 90]) {
-            createTJoint(acrylicThickness, 5.5, 2.5, m3ClearanceHole, 7);
+            createTJoint(acrylicThickness, 5.5, 2.5, m3ClearanceHole, 7, isCutOut);
         }
     }
     
     translate([caseWidth / 2, tjointInset, acrylicThickness]) {
-        createTJoint(acrylicThickness, 5.5, 2.5, m3ClearanceHole, 7);
+        createTJoint(acrylicThickness, 5.5, 2.5, m3ClearanceHole, 7, isCutOut);
     }
     
     translate([caseWidth / 2, caseDepth-acrylicThickness - tjointInset, acrylicThickness]) {
-        createTJoint(acrylicThickness, 5.5, 2.5, m3ClearanceHole, 7);
+        createTJoint(acrylicThickness, 5.5, 2.5, m3ClearanceHole, 7, isCutOut);
     }
 }
 
-module allTopTJoints() {
+module allTopTJoints(isCutOut = false) {
     translate([0, 0, acrylicThickness + caseHeight + acrylicThickness]) {
         mirror([0, 0, 1]) {
-            allBaseTJoints();
+            allBaseTJoints(isCutOut);
         }
     }
 }
 
-baseLayer();
-topLayer();
+module printProjection() {
+    currentY = 0;
+    padding = 5;
+    projection(cut = false) {
+        baseLayer();
+        translate([0,caseDepth + padding,0]) {
+            topLayer();
+        }
+        
+        translate([0,caseDepth + padding + caseDepth + padding,0]) {
+            rotate([-90, 0, 0]) {
+                longSideFront();
+            }
+        }
+        
+        translate([0,caseDepth + padding + caseDepth + padding + caseHeight + acrylicThickness * 2 + padding,0]) {
+            rotate([-90, 0, 0]) {
+                longSideBack();
+            }
+        }
+        
+        translate([0, caseDepth + padding + caseDepth + padding + caseHeight + acrylicThickness * 2 + padding + caseHeight + acrylicThickness * 2 + padding ]) {
+            rotate([0, 90, 0]) {
+                shortSideFront();
+            }
+        }
+        
+        translate([caseHeight + padding + acrylicThickness * 2, caseDepth + padding + caseDepth + padding + caseHeight + acrylicThickness * 2 + padding + caseHeight + acrylicThickness * 2 + padding ]) {
+            rotate([0, 90, 0]) {
+                shortSideBack();
+            }
+        }
+    }
+}
 
-shortSides();
-longSides();
+module printModel() {
+    baseLayer();
+    topLayer();
+
+    shortSides();
+    longSideFront();
+    longSideBack();
+}
+
+printProjection();

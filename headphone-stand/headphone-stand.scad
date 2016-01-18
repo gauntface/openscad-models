@@ -242,4 +242,4 @@ module render(projectionMode) {
     }
 }
 
-render(true);
+render(false);
