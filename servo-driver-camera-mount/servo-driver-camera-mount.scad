@@ -169,6 +169,9 @@ module shortSideFront() {
         }
         allBaseTJoints(true);
         allTopTJoints(true);
+        
+        longSideFront();
+        longSideBack();
     }
 }
 
@@ -179,6 +182,9 @@ module shortSideBack() {
         }
         allBaseTJoints(true);
         allTopTJoints(true);
+        
+        longSideFront();
+        longSideBack();
     }
 }
 
@@ -224,6 +230,15 @@ module longSideFront() {
         
         allBaseTJoints(true);
         allTopTJoints(true);
+        
+        // Side Teeth
+        translate([tjointInset,tjointInset, ((caseHeight - teethWidth) / 2) + acrylicThickness])    {
+            cube([acrylicThickness, acrylicThickness, teethWidth]);
+        }
+        
+        translate([caseWidth - tjointInset - tjointInset,tjointInset, ((caseHeight - teethWidth) / 2) + acrylicThickness])    {
+            cube([acrylicThickness, acrylicThickness, teethWidth]);
+        }
     }
 }
 
@@ -234,6 +249,15 @@ module longSideBack() {
         }
         allBaseTJoints(true);
         allTopTJoints(true);
+        
+        // Side Teeth
+        translate([tjointInset, caseDepth - tjointInset * 2, ((caseHeight - teethWidth) / 2) + acrylicThickness])    {
+            cube([acrylicThickness, acrylicThickness, teethWidth]);
+        }
+        
+        translate([caseWidth - tjointInset - tjointInset,caseDepth - tjointInset * 2, ((caseHeight - teethWidth) / 2) + acrylicThickness])    {
+            cube([acrylicThickness, acrylicThickness, teethWidth]);
+        }
     }
 }
 
