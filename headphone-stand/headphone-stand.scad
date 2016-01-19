@@ -14,10 +14,10 @@
    limitations under the License.
 **/
 
-baseHeight = 6;
+baseHeight = 10;
 baseDiameter = 160;
 
-pillarArcylicThickness = 6;
+pillarArcylicThickness = 10;
 pillarWidth = 30;
 pillarHeight = 240;
 pillarBottomTriableHeight = 40;
@@ -182,11 +182,11 @@ module standPillar(withTjoints = true) {
         }
 
         translate([(pillarWidth / 2) + (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), 0]) {
-            createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, baseHeight + 2.5 + 1, 1);
+            //createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, baseHeight + 2.5 + 1, 1);
         }
 
         translate([-(pillarWidth / 2) - (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), 0]) {
-            createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, baseHeight + 2.5 + 1, 1);
+            //createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, baseHeight + 2.5 + 1, 1);
         }
     }
 
@@ -205,11 +205,11 @@ module base() {
         standSupport();
 
         translate([(pillarWidth / 2) + (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), pillarArcylicThickness]) {
-            createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
+            //createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
         }
 
         translate([-(pillarWidth / 2) - (pillarBottomTriableLength / 2), -(pillarArcylicThickness / 2), pillarArcylicThickness]) {
-            createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
+            //createTJoint(pillarArcylicThickness, 5.5, 2.5, 3.4, 2.5 + 1, 1);
         }
     }
 }
@@ -242,4 +242,4 @@ module render(projectionMode) {
     }
 }
 
-render(false);
+render(true);
