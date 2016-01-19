@@ -19,6 +19,7 @@ servoHeight = 25.4;
 servoDepth = 15;
 
 m3ClearanceHole = 3.4;
+m25ClearanceHole = 2.9;
 m2ClearanceDiameter = 2.4;
 
 tjointInset = 3;
@@ -28,29 +29,34 @@ teethWidth = 10;
 panTiltBaseWidth = 33;
 panTiltBaseDepth = 37;
 panTiltBaseHeight = 3;
-panTiltHoleWidth = 26;
-panTiltHoleDepth = 30;
+panTiltHoleWidth = 30 - m2ClearanceDiameter;
+panTiltHoleDepth = 34 - m2ClearanceDiameter;
 
 caseWidth = 76;
-caseDepth = 49;
-caseHeight = 20;
+caseDepth = 56;
+caseHeight = 28;
 acrylicThickness = 3;
+
+dcBarrelDiameter = 7.8;
+dcBarrelDepth = 13 + acrylicThickness;
+dcBarrelOuterDiameter = 10;
+dcBarrelExtraSpace = (dcBarrelOuterDiameter - dcBarrelDiameter) + 2;
 
 module servoDriverScrewHoles(holeDepth = 15) {
     translate([3.175, 3.175, 0]) {
-        cylinder(h = holeDepth, d1=m3ClearanceHole, d2=m3ClearanceHole);
+        cylinder(h = holeDepth, d=m25ClearanceHole);
     }
     
     translate([59.055, 3.175, 0]) {
-        cylinder(h = holeDepth, d1=m3ClearanceHole, d2=m3ClearanceHole);
+        cylinder(h = holeDepth, d=m25ClearanceHole);
     }
     
     translate([59.055, 22.225, 0]) {
-        cylinder(h = holeDepth, d1=m3ClearanceHole, d2=m3ClearanceHole);
+        cylinder(h = holeDepth, d=m25ClearanceHole);
     }
     
     translate([3.175, 22.225, 0]) {
-        cylinder(h = holeDepth, d1=m3ClearanceHole, d2=m3ClearanceHole);
+        cylinder(h = holeDepth, d=m25ClearanceHole);
     }
 }
 
@@ -258,6 +264,13 @@ module longSideBack() {
         translate([caseWidth - tjointInset - tjointInset,caseDepth - tjointInset * 2, ((caseHeight - teethWidth) / 2) + acrylicThickness])    {
             cube([acrylicThickness, acrylicThickness, teethWidth]);
         }
+        
+        // DC Barrel
+        translate([(3 * ((caseWidth - (tjointInset * 2)) / 4)) + tjointInset, caseDepth - tjointInset, caseHeight - acrylicThickness - dcBarrelExtraSpace]) {
+        rotate([90, 0, 0]) {
+            cylinder(h=dcBarrelDepth, d=dcBarrelDiameter);
+        }
+    }
     }
 }
 
