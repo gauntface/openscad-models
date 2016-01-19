@@ -34,7 +34,7 @@ panTiltHoleDepth = 34 - m2ClearanceDiameter;
 
 caseWidth = 76;
 caseDepth = 56;
-caseHeight = 28;
+caseHeight = 32;
 acrylicThickness = 3;
 
 dcBarrelDiameter = 7.8;
@@ -110,12 +110,12 @@ module topLayer() {
                     panTiltHoles(acrylicThickness + 4);
                 }
                 
-                translate([
+                /**translate([
                     ((caseWidth - panTiltBaseWidth) / 4),
                     (caseDepth / 3) * 2,
                     0]) {
                     cube([2, (caseDepth / 3), acrylicThickness + 4]);
-                }
+                }**/
             }
         }
         
@@ -123,6 +123,14 @@ module topLayer() {
         shortSides();
         longSideFront();
         longSideBack();
+        
+        cableHole = 9;
+        translate([
+        (cableHole / 2) + (m25ClearanceHole / 2) + ((caseWidth - servoWidth) / 2) + m25ClearanceHole, 
+        m25ClearanceHole + ((caseDepth - servoHeight) / 2),
+        caseHeight]) {
+            cylinder(h=acrylicThickness * 3, d=cableHole);
+        }
     }
 }
 
@@ -251,7 +259,7 @@ module longSideFront() {
 module longSideBack() {
     difference() {
         translate([tjointInset, caseDepth - acrylicThickness - tjointInset, acrylicThickness]) {
-            longSide(true);
+            longSide(false);
         }
         allBaseTJoints(true);
         allTopTJoints(true);
@@ -361,9 +369,10 @@ module printModel() {
     baseLayer();
     topLayer();
 
-    shortSides();
-    longSideFront();
-    longSideBack();
+    //shortSides();
+    //longSideFront();
+    //longSideBack();
 }
 
 printProjection();
+//printModel();
