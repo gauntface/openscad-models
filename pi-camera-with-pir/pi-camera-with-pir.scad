@@ -18,7 +18,7 @@ m2ClearanceDiameter = 2.4;
 m3ClearanceDiameter = 3.4;
 
 acrylicThickness3 = 3;
-acrylicThickness4 = 4;
+acrylicThickness2 = 2;
 
 holeBorder = 5;
 
@@ -60,6 +60,7 @@ cameraBodyHeight = 24;
 cameraRibbonWidth = 16;
 
 cameraZoffset = (((topSectionHeight - bottomInset - bottomInsetThickness - topInset - topInsetThickness) - cameraBodyHeight) / 2) + bottomInset - bottomInsetThickness;
+remainingRibbonHeight = topSectionHeight - cameraZoffset - cameraBodyHeight;
 
 module squareHoles(cylinderHeight, holeWidth, holeDepth) {
     translate([0, 0, 0]) {
@@ -144,7 +145,7 @@ module panTiltTopSection() {
             cableInsetWidth = 8;
             // cableInsetDepth = 4;
             // To make it easier on removing sections on the camera layers
-            cableInsetDepth = acrylicThickness3 + acrylicThickness4;
+            cableInsetDepth = acrylicThickness3 + acrylicThickness2 + acrylicThickness2;
             cableInsetThickness = 1;
 
             translate([topSectionInsetCutawayWidth + 1, topSectionThickness, 1]) {
@@ -155,39 +156,39 @@ module panTiltTopSection() {
 }
 
 module cameraLayerScrews() {
-    screwHoleHeight = 20;
+    screwHoleHeight = 30;
     borderInset = ((holeBorder - m3ClearanceDiameter) / 2) + (m3ClearanceDiameter / 2);
-    translate([borderInset, screwHoleHeight, borderInset]) {
+    translate([borderInset, screwHoleHeight - 5, borderInset]) {
         rotate([90, 0, 0]) {
             cylinder(h = screwHoleHeight, d1=m3ClearanceDiameter, d2=m3ClearanceDiameter);
         }
     }
 
-    translate([borderInset, screwHoleHeight, topSectionHeight - borderInset]) {
+    translate([borderInset, screwHoleHeight - 5, topSectionHeight - borderInset]) {
         rotate([90, 0, 0]) {
             cylinder(h = screwHoleHeight, d1=m3ClearanceDiameter, d2=m3ClearanceDiameter);
         }
     }
 
-    translate([borderInset + holeBorder + topSectionWidth, screwHoleHeight, borderInset]) {
+    translate([borderInset + holeBorder + topSectionWidth, screwHoleHeight - 5, borderInset]) {
         rotate([90, 0, 0]) {
             cylinder(h = screwHoleHeight, d1=m3ClearanceDiameter, d2=m3ClearanceDiameter);
         }
     }
 
-    translate([borderInset + holeBorder + topSectionWidth, screwHoleHeight, topSectionHeight - borderInset]) {
+    translate([borderInset + holeBorder + topSectionWidth, screwHoleHeight - 5, topSectionHeight - borderInset]) {
         rotate([90, 0, 0]) {
             cylinder(h = screwHoleHeight, d1=m3ClearanceDiameter, d2=m3ClearanceDiameter);
         }
     }
 
-    translate([cameraLayerWidth - borderInset, screwHoleHeight, borderInset]) {
+    translate([cameraLayerWidth - borderInset, screwHoleHeight - 5, borderInset]) {
         rotate([90, 0, 0]) {
             cylinder(h = screwHoleHeight, d1=m3ClearanceDiameter, d2=m3ClearanceDiameter);
         }
     }
 
-    translate([cameraLayerWidth - borderInset, screwHoleHeight, topSectionHeight - borderInset]) {
+    translate([cameraLayerWidth - borderInset, screwHoleHeight - 5, topSectionHeight - borderInset]) {
         rotate([90, 0, 0]) {
             cylinder(h = screwHoleHeight, d1=m3ClearanceDiameter, d2=m3ClearanceDiameter);
         }
@@ -225,6 +226,17 @@ module pirSensor() {
                 cylinder(h = 20, d1=m2ClearanceDiameter, d2=m2ClearanceDiameter);
             }
         }
+        
+        // Pin headers
+        pinHeaderWidth = 9;
+        pinHeaderHeight = 4;
+        // This is large to ensure it pierces the case
+        pinHeaderDepth = 20;
+        // This is the center of the pin on the board
+        pinHeaderCenterXOffset = 16;
+        translate([pinHeaderCenterXOffset - (pinHeaderWidth / 2), pirSensorDomePlatformDepth, 0]) {
+            cube([pinHeaderWidth, pinHeaderDepth, pinHeaderHeight]);
+        }
     }
 }
 
@@ -239,21 +251,40 @@ module baseLayer() {
     }
 }
 
-module cameraBody() {
-    remainingRibbonHeight = topSectionHeight - cameraZoffset - cameraBodyHeight;
-
+module cameraBodyBack() {
     difference() {
-        translate([0, armDepth + armTopThickness - acrylicThickness3 - acrylicThickness4, 0]) {
+        translate([0, armDepth + armTopThickness - acrylicThickness3 - acrylicThickness2, 0]) {
             difference() {
-                color([0, 0, 1]) cube([cameraLayerWidth, acrylicThickness4, topSectionHeight]);
-                translate([((topSectionWidth - cameraBodyWidth) / 2) + holeBorder, 0, cameraZoffset]) {
-                    cube([cameraBodyWidth, acrylicThickness4, cameraBodyHeight]);
+                color([0, 0.5, 1]) cube([cameraLayerWidth, acrylicThickness2, topSectionHeight]);
+                translate([((topSectionWidth - 22) / 2) + holeBorder, 0, topSectionHeight - remainingRibbonHeight - 6.5]) {
+                    cube([22, acrylicThickness2, 6.5]);
                 }
                 translate([((topSectionWidth - cameraRibbonWidth) / 2) + holeBorder, 0, topSectionHeight - remainingRibbonHeight]) {
-                    cube([cameraRibbonWidth, acrylicThickness4, remainingRibbonHeight]);
+                    cube([cameraRibbonWidth, acrylicThickness2, remainingRibbonHeight]);
                 }
             }
         }
+        
+        panTiltTopSection();
+        cameraLayerScrews();
+        pirSensor();
+    }
+}
+
+module cameraBodyFront() {
+    difference() {
+        translate([0, armDepth + armTopThickness - acrylicThickness3 - acrylicThickness2 - acrylicThickness2, 0]) {
+            difference() {
+                color([0, 0, 1]) cube([cameraLayerWidth, acrylicThickness2, topSectionHeight]);
+                translate([((topSectionWidth - cameraBodyWidth) / 2) + holeBorder, 0, cameraZoffset]) {
+                    cube([cameraBodyWidth, acrylicThickness2, cameraBodyHeight]);
+                }
+                translate([((topSectionWidth - cameraRibbonWidth) / 2) + holeBorder, 0, topSectionHeight - remainingRibbonHeight]) {
+                    cube([cameraRibbonWidth, acrylicThickness2, remainingRibbonHeight]);
+                }
+            }
+        }
+        
         panTiltTopSection();
         cameraLayerScrews();
         pirSensor();
@@ -262,7 +293,7 @@ module cameraBody() {
 
 module cameraLense() {
     difference() {
-        translate([0, armDepth + armTopThickness - acrylicThickness3 - acrylicThickness4 - acrylicThickness3, 0]) {
+        translate([0, armDepth + armTopThickness - acrylicThickness3 - acrylicThickness2 - acrylicThickness2 - acrylicThickness3, 0]) {
             difference() {
                 color([1, 1, 0]) cube([cameraLayerWidth, acrylicThickness3, topSectionHeight]);
 
@@ -284,7 +315,7 @@ module cameraLense() {
 
 module cameraFront() {
     difference() {
-        translate([0, armDepth + armTopThickness - acrylicThickness3 - acrylicThickness4 - acrylicThickness3 - acrylicThickness3, 0]) {
+        translate([0, armDepth + armTopThickness - acrylicThickness3 - acrylicThickness2 - acrylicThickness2 - acrylicThickness3 - acrylicThickness3, 0]) {
             difference() {
                 color([1, 1, 1]) cube([cameraLayerWidth, acrylicThickness3, topSectionHeight]);
 
@@ -293,6 +324,17 @@ module cameraFront() {
                     cube([cameraLenseWidth, acrylicThickness3, cameraLenseHeight]);
                 }
             }
+        }
+        panTiltTopSection();
+        cameraLayerScrews();
+        pirSensor();
+    }
+}
+
+module clearCover() {
+    difference() {
+        translate([0, armDepth + armTopThickness - acrylicThickness3 - acrylicThickness2 - acrylicThickness2 - acrylicThickness3 - acrylicThickness3 - acrylicThickness3, 0]) {
+            color([1, 1, 0.5]) cube([cameraLayerWidth, acrylicThickness3, topSectionHeight]);
         }
         panTiltTopSection();
         cameraLayerScrews();
@@ -316,6 +358,7 @@ module pirBackLayer() {
             color([0.5, 1, 0.5]) cube([(pirSensorWidth + (holeBorder * 2)), acrylicThickness3, topSectionHeight]);
         }
         cameraLayerScrews();
+        pirSensor();
     }
 }
 
@@ -324,7 +367,8 @@ module panTiltCamera() {
     baseLayer();
 
     // Layer to position camera body
-    cameraBody();
+    cameraBodyBack();
+    cameraBodyFront();
 
     // Layer to position lense
     cameraLense();
@@ -337,7 +381,9 @@ module panTiltCamera() {
 
     // PIR back layers
     pirBackLayer();
-
+    
+    // Clear Front Cover
+    clearCover();
 }
 
 module projectionMode() {
@@ -350,31 +396,43 @@ module projectionMode() {
 
         translate([0, topSectionHeight + padding, 0]) {
         rotate([-90, 0, 0]) {
-            cameraBody();
+            cameraBodyBack();
         }
         }
-
+        
         translate([0, (topSectionHeight + padding) * 2, 0]) {
         rotate([-90, 0, 0]) {
-            cameraLense();
+            cameraBodyFront();
         }
         }
 
         translate([0, (topSectionHeight + padding) * 3, 0]) {
         rotate([-90, 0, 0]) {
-            cameraFront();
+            cameraLense();
         }
         }
 
         translate([0, (topSectionHeight + padding) * 4, 0]) {
         rotate([-90, 0, 0]) {
-            pirBackLayerSpace();
+            cameraFront();
         }
         }
 
         translate([0, (topSectionHeight + padding) * 5, 0]) {
         rotate([-90, 0, 0]) {
+            pirBackLayerSpace();
+        }
+        }
+
+        translate([0, (topSectionHeight + padding) * 6, 0]) {
+        rotate([-90, 0, 0]) {
             pirBackLayer();
+        }
+        }
+        
+        translate([0, (topSectionHeight + padding) * 7, 0]) {
+        rotate([-90, 0, 0]) {
+            clearCover();
         }
         }
     }
@@ -382,4 +440,4 @@ module projectionMode() {
 
 projectionMode();
 
-//panTiltCamera();
+// panTiltCamera();
