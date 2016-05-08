@@ -116,6 +116,8 @@ module base() {
 }
 
 module left() {
+    echo(boxHeight);
+    echo(boxDepth);
     cube([acrylicThickness, boxDepth, boxHeight]);
 }
 
@@ -301,11 +303,11 @@ difference() {
 
 leftFirstShelf();
 
-/**translate([leftThickness + switchWidth + switchLeftCableSapce, 0, 0]) {
+translate([leftThickness + switchWidth + switchLeftCableSapce, 0, 0]) {
     left();
 }
 
-difference() {
+/**difference() {
     base();
     ankerHubFrontBack(true);
 }
