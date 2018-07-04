@@ -13,6 +13,8 @@ shelfSidePaddingMM = 6;
 shelfBackPaddingMM = 30;
 shelfFrontPaddingMM = 6;
 
+colorAlpha = 1;
+
 /**
 Generate variables (DO NOT TOUCH)
 **/
@@ -23,7 +25,7 @@ rightSideY = (fullShelfWidth / 2) - shelfSidePaddingMM;
 
 module sidePiece() {
   translate([0, -(materialThicknessMM / 2), 0]) {
-  color([10 / 255, 189 / 255, 227 / 255,0.5]) polyhedron (
+  color([10 / 255, 189 / 255, 227 / 255, colorAlpha]) polyhedron (
     points = [
         [0, 0, 0],
         [fullShelfDepth + materialThicknessMM + shelfFrontPaddingMM, 0, 0],
@@ -75,16 +77,17 @@ module shelfBaseTrackAtLevel(level) {
 }
 
 module shelfBackTrackAtLevel(level) {
-    cutoutX = fullShelfDepth - ((level + 1) * shelfDepthMM);
+    cutoutX = fullShelfDepth - (level * shelfDepthMM);
     cutoutZ = materialThicknessMM + shelfLipHeightMM + ((level + 1) * shelfHeightMM) - ((shelfHeightMM + shelfLipHeightMM) / 2);
+    cutoutZ = level * shelfHeightMM;
     
     cutoutWidth = materialThicknessMM * 3;
     translate([cutoutX, leftSideY - (cutoutWidth / 2), cutoutZ]) {
-        color([1, 0, 0, 0]) cube([materialThicknessMM, cutoutWidth, fullShelfDepth]);
+        color([1, 0, 0, 1]) cube([materialThicknessMM, cutoutWidth, fullShelfDepth]);
     }
     
     translate([cutoutX, rightSideY - (cutoutWidth / 2), cutoutZ]) {
-        color([1, 0, 0, 0]) cube([materialThicknessMM, cutoutWidth, fullShelfDepth]);
+        color([1, 0, 0, 1]) cube([materialThicknessMM, cutoutWidth, fullShelfDepth]);
     }
 }
 
@@ -101,7 +104,7 @@ module sides() {
  
 module shelfBase() {
     difference() {
-        color([95 / 255, 39 / 255, 205 / 255, 0.5]) cube([shelfDepthMM, fullShelfWidth, materialThicknessMM]);
+        color([95 / 255, 39 / 255, 205 / 255, colorAlpha]) cube([shelfDepthMM + materialThicknessMM, fullShelfWidth, materialThicknessMM]);
         
         translate([-materialThicknessMM ,shelfSidePaddingMM - (materialThicknessMM / 2), -materialThicknessMM]) {
             color([255 / 255, 159 / 255, 243 / 255, 0]) cube([(shelfDepthMM / 2) + materialThicknessMM, materialThicknessMM, materialThicknessMM * 3]);
@@ -131,7 +134,7 @@ module shelfBases() {
 
 module shelfBack(shelfHeight) {
     difference() {
-        color([255 / 255, 159 / 255, 67 / 255, 0.5]) cube([materialThicknessMM, fullShelfWidth, shelfHeight]);
+        color([255 / 255, 159 / 255, 67 / 255, colorAlpha]) cube([materialThicknessMM, fullShelfWidth, shelfHeight]);
         
         translate([-materialThicknessMM ,shelfSidePaddingMM - (materialThicknessMM / 2), -materialThicknessMM]) {
                 color([255 / 255, 159 / 255, 243 / 255, 0]) cube([materialThicknessMM * 3, materialThicknessMM, (shelfHeight / 2) + materialThicknessMM]);
@@ -166,9 +169,9 @@ module shelfBacks() {
 
 sides();
 shelfBases();
-shelfBacks();
+// shelfBacks();
 
 // Shelf front
 /* translate([fullShelfDepth, -(fullShelfWidth / 2), 0]) {
-    color([255 / 255, 159 / 255, 67 / 255, 0.5]) cube([materialThicknessMM, fullShelfWidth, materialThicknessMM + shelfLipHeightMM]);
+    color([255 / 255, 159 / 255, 67 / 255, colorAlpha]) cube([materialThicknessMM, fullShelfWidth, materialThicknessMM + shelfLipHeightMM]);
 }*/
