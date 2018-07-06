@@ -3,33 +3,31 @@ Configuration variables
 **/
 materialThicknessMM = 3;
 
-noOfShelves = 3;
+noOfShelves = 1;
+
 shelfDepthMM = 30;
 shelfHeightMM = 40;
-shelfWidthMM = 200;
+shelfWidthMM = 50;
 
-shelfLipHeightMM = 12;
+lipHeightMM = 12;
 lipTrackThicknessMM = 5;
 
 slideEdgeSizeMM = 6;
 noOfShelfTeeth = 7;
 
-backPlateHeightMM = 24;
+backPlateHeightMM = 14;
 
 unitBaseHeightMM = 6;
-unitBackDepthMM = 12;
+unitBackDepthMM = 6;
 
-colorAlpha = 1;
-
-debug = true;
 debugColor = [111/255, 30/255, 81/255, 0.4];
 
 /**
 DO NOT EDIT THESE VALUES
 **/
 shelfAngle = atan(shelfHeightMM / shelfDepthMM);
-sideIndentX = shelfLipHeightMM / tan(shelfAngle);
-frontExtensionMM = (shelfLipHeightMM-materialThicknessMM) / tan(shelfAngle);
+sideIndentX = lipHeightMM / tan(shelfAngle);
+frontExtensionMM = (lipHeightMM-materialThicknessMM) / tan(shelfAngle);
 
 module shelfMarker() {
     triangleDepth = shelfDepthMM;
@@ -56,10 +54,8 @@ module sideMarker() {
 }
 
 module printDebug() {
-    if (debug) {
-        color(debugColor) shelfMarkers();
-        color(debugColor) sideMarker();
-    }
+    color(debugColor) shelfMarkers();
+    color(debugColor) sideMarker();
 }
 
 
@@ -106,7 +102,7 @@ module createTeeth(on, width, noOfTeeth, flatPiece) {
     }
 }
 
-module base() {
+module basePiece() {
     halfShelfDepth = shelfDepthMM / 2;
     
     difference() {
@@ -165,36 +161,36 @@ module bases() {
         xOffset = (noOfShelves - i) * shelfDepthMM;
         zOffset = (i - 1) * shelfHeightMM;
         translate([xOffset, 0, zOffset]) {
-            color([18/255, 203/255, 196/255]) base();
+            color([18/255, 203/255, 196/255]) basePiece();
         }
     }
 }
 
 
-module lip() {
+module lipPiece() {
     difference() {
     
     union() {
-    cube([materialThicknessMM, shelfWidthMM, shelfLipHeightMM]);
+    cube([materialThicknessMM, shelfWidthMM, lipHeightMM]);
     
     // Left slide path
-    translate([0, -materialThicknessMM, shelfLipHeightMM - lipTrackThicknessMM]) {
+    translate([0, -materialThicknessMM, lipHeightMM - lipTrackThicknessMM]) {
     cube([materialThicknessMM, materialThicknessMM, lipTrackThicknessMM]);
     }
     
     // Right slide path
-    translate([0, shelfWidthMM, shelfLipHeightMM - lipTrackThicknessMM]) {
+    translate([0, shelfWidthMM, lipHeightMM - lipTrackThicknessMM]) {
     cube([materialThicknessMM, materialThicknessMM, lipTrackThicknessMM]);
     }
     
     // Left slide edge
     translate([0, -materialThicknessMM-slideEdgeSizeMM, 0]) {
-    cube([materialThicknessMM, slideEdgeSizeMM, shelfLipHeightMM]);
+    cube([materialThicknessMM, slideEdgeSizeMM, lipHeightMM]);
     }
     
     // Right slide edge
     translate([0, shelfWidthMM + materialThicknessMM, 0]) {
-    cube([materialThicknessMM, slideEdgeSizeMM, shelfLipHeightMM]);
+    cube([materialThicknessMM, slideEdgeSizeMM, lipHeightMM]);
     }
     }
     
@@ -220,35 +216,49 @@ module lips() {
         xOffset = ((noOfShelves - i + 1) * shelfDepthMM) - materialThicknessMM;
         zOffset = (i - 1) * shelfHeightMM;
         translate([xOffset, 0, zOffset]) {
-            color([6/255, 82/255, 221/255]) lip();
+            color([6/255, 82/255, 221/255]) lipPiece();
         }
     }
 }
 
-module backPlate() {
-    backPlateWidth = shelfWidthMM + (materialThicknessMM * 2) + (slideEdgeSizeMM * 2);
-    fullHeight = shelfHeightMM * noOfShelves;
+module backPlatePiece() {
+    union() {
     
-    difference() {
-    
-    translate([0, -materialThicknessMM-slideEdgeSizeMM, fullHeight - backPlateHeightMM]) {
-    color([237/255, 76/255, 103/255]) cube([materialThicknessMM, backPlateWidth, backPlateHeightMM]);
+    translate([0, 0, 0]) {
+    cube([materialThicknessMM, shelfWidthMM, backPlateHeightMM]);
     }
     
-    // Left track to remove
-    translate([-materialThicknessMM, -materialThicknessMM, fullHeight - (backPlateHeightMM * 1.5)]) {
-    cube([materialThicknessMM*3, materialThicknessMM, backPlateHeightMM]);
+    // Left track
+    translate([0, -materialThicknessMM, backPlateHeightMM / 2]) {
+    cube([materialThicknessMM, materialThicknessMM, backPlateHeightMM / 2]);
     }
     
-    // Right track to remove
-    translate([-materialThicknessMM, shelfWidthMM, fullHeight - (backPlateHeightMM * 1.5)]) {
-    cube([materialThicknessMM*3, materialThicknessMM, backPlateHeightMM]);
+    // Right track
+    translate([0, shelfWidthMM, backPlateHeightMM /2]) {
+    cube([materialThicknessMM, materialThicknessMM, backPlateHeightMM / 2]);
+    }
+    
+    // Left edge
+    translate([0, -materialThicknessMM-slideEdgeSizeMM, 0]) {
+    cube([materialThicknessMM, slideEdgeSizeMM, backPlateHeightMM]);
+    }
+    
+    // Right edge
+    translate([0, shelfWidthMM+materialThicknessMM, 0]) {
+    cube([materialThicknessMM, slideEdgeSizeMM, backPlateHeightMM]);
     }
     
     }
 }
 
-module side() {
+module backPlate() {
+    fullHeight = shelfHeightMM * noOfShelves;
+    translate([0, 0, fullHeight - backPlateHeightMM]) {
+    color([237/255, 76/255, 103/255]) backPlatePiece();
+    }
+}
+
+module sidePiece() {
     fullHeight = shelfHeightMM * noOfShelves;
     fullDepth = shelfDepthMM * noOfShelves;
     width = materialThicknessMM;
@@ -301,7 +311,7 @@ module side() {
     // Cuts out the track for the lip
     trackHeight = lipTrackThicknessMM + sideIndentX;
     for (i = [1 : noOfShelves]) {
-        trackZ = (shelfHeightMM * (noOfShelves - i)) + (shelfLipHeightMM - lipTrackThicknessMM);
+        trackZ = (shelfHeightMM * (noOfShelves - i)) + (lipHeightMM - lipTrackThicknessMM);
         translate([(shelfDepthMM * i) - materialThicknessMM, -materialThicknessMM, trackZ]) {
         cube([materialThicknessMM, materialThicknessMM * 3, trackHeight]);
         }
@@ -321,17 +331,29 @@ module side() {
 
 module sides() {
     translate([0, -materialThicknessMM, 0]) {
-    color([163/255, 203/255, 56/255]) side();
+    color([163/255, 203/255, 56/255]) sidePiece();
     }
     
     translate([0, shelfWidthMM, 0]) {
-    color([163/255, 203/255, 56/255, 1]) side();
+    color([163/255, 203/255, 56/255, 1]) sidePiece();
     }
 }
 
 // printDebug();
 
-bases();
-lips();
-backPlate();
-sides();
+createProjection = true;
+if (createProjection) {
+    padding = 4;
+    
+    projection(cut = false) {
+    rotate([0, 90, 0]) backPlatePiece();
+    translate([backPlateHeightMM + padding, 0, 0]) rotate([0, 90, 0]) lipPiece();
+    translate([backPlateHeightMM + lipHeightMM + padding * 2, 0, 0]) basePiece();
+    translate([-slideEdgeSizeMM - padding, 0, 0]) rotate([-90, -180, 0]) sidePiece();
+    }
+} else {
+    bases();
+    lips();
+    backPlate();
+    sides();
+}
