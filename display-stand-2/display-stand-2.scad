@@ -3,11 +3,11 @@ Configuration variables
 **/
 materialThicknessMM = 3;
 
-noOfShelves = 1;
+noOfShelves = 3;
 
 shelfDepthMM = 30;
 shelfHeightMM = 40;
-shelfWidthMM = 50;
+shelfWidthMM = 200;
 
 lipHeightMM = 12;
 lipTrackThicknessMM = 5;
@@ -18,7 +18,7 @@ noOfShelfTeeth = 7;
 backPlateHeightMM = 14;
 
 unitBaseHeightMM = 6;
-unitBackDepthMM = 6;
+unitBackDepthMM = 16;
 
 debugColor = [111/255, 30/255, 81/255, 0.4];
 
@@ -341,7 +341,7 @@ module sides() {
 
 // printDebug();
 
-createProjection = true;
+createProjection = false;
 if (createProjection) {
     padding = 4;
     
