@@ -18,25 +18,19 @@ padX = ((keyOffset * keyCols) + keyPadding) + padPadding;
 padY = ((keyOffset * keyRows) + keyPadding) + screenPadding + pcbY + padPadding;
 padZ = 24;
 
-module cherrymx(cutout) {
-    if (cutout) {
-        cherrymxPlate();
-    } else {
-        cherrymxSwitch();
-    }
-}
-
 module cherrymxCols(cutout = false) {
     for (i = [0:keyCols - 1]) {
-        o = keyOffset * i;
-        translate([o, 0, 0]) cherrymx(cutout);
+        // o = keyOffset * i;
+        // translate([o, 0, 0]) cherrymx(cutout);
+        cherrymx(cutout);
     }
 }
 
 module cherrymxRows(cutout = false) {
     for (i = [0:keyRows - 1]) {
-        o = keyOffset * i;
-        translate([0, o, 0]) cherrymxCols(cutout);
+        // o = keyOffset * i;
+        // translate([0, o, 0]) cherrymxCols(cutout);
+        cherrymxCols(cutout);
     }
 }
 

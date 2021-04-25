@@ -24,11 +24,13 @@ innerXY = 13.95;
 
 pinH = 3.3;
 
-railW = 3.5;
-railD = 0.8;
-railFromEdge = 2.75;
+keycapSpaceXY = 18;
+keycapSpaceH = 10;
 
-module cherrymxPlate() {
+cherrymxSpace = 19.05;
+cherrymxPCBZ = innerH;
+
+module cmPlate() {
     union() {
         translate([0, 0, topH / 2])
         color("#0be881") cube([innerXY, innerXY, topH], center=true);
@@ -38,24 +40,15 @@ module cherrymxPlate() {
         
         translate([0, 0, -(innerH + (pinH / 2))])
         color("#ffdd59") cube([innerXY, innerXY, pinH + nothing], center=true);
-
-        railH = topH + innerH + pinH;
-        translate([-7 + railFromEdge, -(innerXY / 2) - (railD / 2), (railH / 2) - (innerH + pinH)])
-        color("#ff5e57") cube([railW, railD + nothing, railH], center=true);
-        
-        translate([7 - railFromEdge, -(innerXY / 2) - (railD / 2), (railH / 2) - (innerH + pinH)])
-        color("#ff5e57") cube([railW, railD + nothing, railH], center=true);
-        
-        translate([-7 + railFromEdge, (innerXY / 2) + (railD / 2), (railH / 2) - (innerH + pinH)])
-        color("#ff5e57") cube([railW, railD + nothing, railH], center=true);
-        
-        translate([7 - railFromEdge, (innerXY / 2) + (railD / 2), (railH / 2) - (innerH + pinH)])
-        color("#ff5e57") cube([railW, railD + nothing, railH], center=true);
     }
 }
 
-module cherrymxSwitch() {
+module cmSwitch() {
     union() {
+        // 3.6 here is the height of the stem
+        translate([0, 0, (keycapSpaceH / 2) + 3.6])
+        color("#00a8ff99") cube([keycapSpaceXY, keycapSpaceXY, keycapSpaceH], center=true);
+        
         translate([0, 0, topH / 2])
         color("#ef5777") cube([topXY, topXY, topH], center=true);
         
@@ -64,9 +57,17 @@ module cherrymxSwitch() {
         
         translate([0, 0, -(innerH + (pinH / 2))])
         color("#4bcffa") cube([innerXY, innerXY, pinH], center=true);
+        
     }
 }
 
-// cherrymxSwitch();
+module cherrymx(cutout) {
+    if (cutout) {
+        cmPlate();
+    } else {
+        cmSwitch();
+    }
+}
 
-// cherrymxPlate();
+// cherrymx(true);   // cutout / plate
+// cherrymx(false);  // full switch / part
