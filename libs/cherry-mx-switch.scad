@@ -16,57 +16,61 @@
 
 nothing=0.01; // See https://3dprinting.stackexchange.com/questions/9794/how-to-prevent-z-fighting-in-openscad
 
-topH = 6.6;
-topXY = 15.6;
+cherryKeyCapH = 6.6;
+cherryKeyCapXY = 15.6;
 
-innerH = 5;
-innerXY = 13.95;
+cherrySwitchH = 5;
+cherrySwitchXY = 14;
 
 pinH = 3.3;
 
-railW = 3.5;
-railD = 0.8;
-railFromEdge = 2.75;
-
-module cherrymxPlate() {
+module cherrymxPlate(kerf = 0.5) {
+    xy = cherrySwitchXY - kerf;
     union() {
-        translate([0, 0, topH / 2])
-        color("#0be881") cube([innerXY, innerXY, topH], center=true);
+        translate([0, 0, cherryKeyCapH / 2])
+        color("#0be881") cube([xy, xy, cherryKeyCapH], center=true);
         
         translate([0, 0, -2.5])
-        color("#ffc048") cube([innerXY, innerXY, innerH + nothing], center=true);
+        color("#ffc048") cube([xy, xy, cherrySwitchH + nothing], center=true);
         
-        translate([0, 0, -(innerH + (pinH / 2))])
-        color("#ffdd59") cube([innerXY, innerXY, pinH + nothing], center=true);
-
-        railH = topH + innerH + pinH;
-        translate([-7 + railFromEdge, -(innerXY / 2) - (railD / 2), (railH / 2) - (innerH + pinH)])
-        color("#ff5e57") cube([railW, railD + nothing, railH], center=true);
-        
-        translate([7 - railFromEdge, -(innerXY / 2) - (railD / 2), (railH / 2) - (innerH + pinH)])
-        color("#ff5e57") cube([railW, railD + nothing, railH], center=true);
-        
-        translate([-7 + railFromEdge, (innerXY / 2) + (railD / 2), (railH / 2) - (innerH + pinH)])
-        color("#ff5e57") cube([railW, railD + nothing, railH], center=true);
-        
-        translate([7 - railFromEdge, (innerXY / 2) + (railD / 2), (railH / 2) - (innerH + pinH)])
-        color("#ff5e57") cube([railW, railD + nothing, railH], center=true);
+        translate([0, 0, -(cherrySwitchH + (pinH / 2))])
+        color("#ffdd59") cube([xy, xy, pinH + nothing], center=true);
     }
 }
 
 module cherrymxSwitch() {
     union() {
-        translate([0, 0, topH / 2])
-        color("#ef5777") cube([topXY, topXY, topH], center=true);
+        translate([0, 0, cherryKeyCapH / 2])
+        color("#ef5777") cube([cherryKeyCapXY, cherryKeyCapXY, cherryKeyCapH], center=true);
         
-        translate([0, 0, -(innerH / 2)])
-        color("#575fcf") cube([innerXY, innerXY, innerH], center=true);
+        translate([0, 0, -(cherrySwitchH / 2)])
+        color("#575fcf") cube([cherrySwitchXY, cherrySwitchXY, cherrySwitchH], center=true);
         
-        translate([0, 0, -(innerH + (pinH / 2))])
-        color("#4bcffa") cube([innerXY, innerXY, pinH], center=true);
+        translate([0, 0, -(cherrySwitchH + (pinH / 2))])
+        color("#4bcffa") cube([cherrySwitchXY, cherrySwitchXY, pinH], center=true);
     }
 }
 
 // cherrymxSwitch();
 
 // cherrymxPlate();
+
+module demoPlate() {
+    projection() {
+        difference() {
+            cube([(19.5 * 3) + 8, 19.5 + 8, 3]);
+
+            // 13.85mm
+            c = 19.5/2 + 4;
+            translate([c, c, 0]) cherrymxPlate(kerf = 0.25);
+
+            // 13.5mm
+            translate([c + 19.5, c, 0]) cherrymxPlate(kerf = 0.5);
+
+            // 13mm
+            translate([c + (19.5 * 2), c, 0]) cherrymxPlate(kerf = 1);
+        }
+    }
+}
+
+// demoPlate();
