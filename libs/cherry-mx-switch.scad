@@ -24,7 +24,7 @@ cherrySwitchXY = 14;
 
 pinH = 3.3;
 
-module cherrymxPlate(kerf = 0.5) {
+module cherrymxPlate(kerf = 0.4) {
     xy = cherrySwitchXY - kerf;
     union() {
         translate([0, 0, cherryKeyCapH / 2])
