@@ -16,7 +16,7 @@
 
 /**
 th = thickness
-bD = bold diameter
+bD = bolt diameter
 bH = bolt height
 sD = screw diameter
 sL = screw length
