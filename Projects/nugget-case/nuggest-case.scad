@@ -1,5 +1,9 @@
+include <../../libs/flat-ui-colors.scad>;
+
 pcbThickness = 1.57;
 acrylicThickness = 3;
+
+m3HoleD = 3.4;
 
 module nuggetPCB(h=pcbThickness) {
     linear_extrude(height = h, center = false, convexity = 10, twist = 0)
@@ -17,6 +21,10 @@ module nuggetPCB(h=pcbThickness) {
             [8.3, 0],
         ]
     );
+}
+
+module nuggetUSBPort(h=acrylicThickness) {
+    translate([-9, 8.6+15, -h/2]) cube([12, 14, h * 2]);
 }
 
 module nuggetLayer(h=acrylicThickness) {
@@ -38,7 +46,7 @@ module nuggetLayer(h=acrylicThickness) {
 }
 
 module backHeaders(h=acrylicThickness) {
-    translate([7.77, 16.2, - h/2]) cube([23, 4.5, h * 2]);
+    translate([7.77, 16.2, - h/2]) cube([23, 4.5, h]);
     
     translate([7.77, 16.2 + 4.5 + 13.28, - h/2]) cube([23, 4.5, h * 2]);
     
@@ -46,10 +54,11 @@ module backHeaders(h=acrylicThickness) {
 }
 
 module nuggetLowerLayer(h=acrylicThickness) {
-    union() {
+    color(flatui[2]) union() {
         difference() {
             nuggetLayer(h);
             translate([0, 0, -h/2]) nuggetPCB(h=h*2);
+            nuggetUSBPort(h=h*2);
         }
         
         // Bottom barrier
@@ -91,10 +100,16 @@ module nuggetLowerLayer(h=acrylicThickness) {
 }
 
 module nuggetScrewLayer(h=acrylicThickness) {
-    union() {
+    // TODO: CHECK IF THIS IS CORRECT - I GUESSED
+    // TODO: CHECK THE HOLE SIZE
+    
+    color(flatui[1]) union() {
         difference() {
             nuggetLayer(h);
             translate([0, 0, -h/2]) nuggetPCB(h=h*2);
+            nuggetUSBPort(h=h*2);
+            translate([7.25, 59.1, 0]) cylinder(30, d=m3HoleD, true);
+            translate([7.25+27.5, 59.1, 0]) cylinder(30, d=m3HoleD, true);
         }
         
         // Bottom barrier
@@ -130,26 +145,69 @@ module nuggetScrewLayer(h=acrylicThickness) {
 }
 
 module nuggetUpperLayer(h=acrylicThickness) {
-    difference() {
+    color(flatui[3]) difference() {
         nuggetLayer(h);
         translate([0, 0, -h]) nuggetPCB(h=h*3);
     }
 }
 
+module nuggetDPadLayer(h=acrylicThickness) {
+    // partDisplay();
+    
+    // TODO: CHECK WHAT THE DPAD SHOULD LOOK LIKE
+    color(flatui[4]) difference() {
+        nuggetLayer(h);
+        difference() {
+            translate([0, 0, -h]) nuggetPCB(h=h*3);
+            translate([-1, -1, -h*2]) cube([44, 17.6, h*5]);
+        }
+        
+        // TODO: Position the LED Cover
+        translate([5, 5, -h]) cube([6.5, 6.5, h * 3]);
+        
+        // TODO: Position the DPAD
+        translate([20, 0, 0]) {
+            translate([7, 0, -h]) cube([7, 14, h * 3]);
+            translate([0, 4.5, -h]) cube([21, 5, h * 3]);
+        }
+    }
+}
+
+module nuggetScreenLayer(h=acrylicThickness) {
+    // partDisplay();
+    
+    color(flatui[6]) difference() {
+        nuggetLayer();
+        translate([-5.822-5,-5.822-4,-h]) cube([53.644 + 10, 5.822 + 18.6, h * 3]);
+    }
+}
+
 module nuggetBack(h=acrylicThickness) {
-    difference() {
+    color(flatui[7]) difference() {
         nuggetLayer(h);
         backHeaders(h);
     }
 }
 
+module partDisplay() {
+    translate([5, 18.6, 0]) cube([32, 20, 10]);
+}
 
-// color([0.5, 0.5, 0.5]) nuggetPCB(h=pcbThickness);
-// translate([0, 0, -(h*1.5)-pcbThickness]) backHeaders();
+module caseLayers() {
+    translate([0, 0, -3]) nuggetScrewLayer();
+    translate([0, 0, -6]) nuggetLowerLayer();
+    translate([0, 0, -9]) nuggetLowerLayer();
+    translate([0, 0, 0]) nuggetUpperLayer();
+    translate([0, 0, 3]) nuggetDPadLayer();
+    translate([0, 0, 6]) nuggetScreenLayer();
+    translate([0, 0, -12]) nuggetBack();
+}
 
-translate([0, 0, -3]) color([0, 0, 1]) nuggetScrewLayer();
-translate([0, 0, -6]) color([0, 1, 0]) nuggetLowerLayer();
-translate([0, 0, -9]) color([1, 1, 0]) nuggetLowerLayer();
-translate([0, 0, -12]) color([1, 0, 0]) nuggetBack();
-
-color([0, 1, 1]) nuggetUpperLayer();
+difference() {
+    caseLayers();
+    translate([2.2, 2.2, -16]) cylinder(30, d=m3HoleD, true);
+    translate([44.8, 28.6, -16]) cylinder(30, d=m3HoleD, true);
+    translate([21, 51.4, -16]) cylinder(30, d=m3HoleD, true);
+}
+// TODO: Add some ventilation?
+// TODO: Add Lanyard?
