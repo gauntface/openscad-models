@@ -22,6 +22,7 @@ header8x1Z = 8.5;
 switchX = 6;
 switchY = 3.6;
 switchZ = 1.4;
+btnZ = 1;
 
 module partsEarHoles(h=pcbThickness) {
     earHoleD = 2.6;
@@ -63,7 +64,7 @@ module partDisplay() {
     
     displayInnerX = 34.4;
     displayInnerY = 22.8;
-    displayInnerZ = 7.2;
+    displayInnerZ = 6.4;
     
     // Currently not used but pulled from 3D Print Model
     // displayVisibleX = 32;
@@ -71,8 +72,8 @@ module partDisplay() {
     translate([(pcbCoreX - displayInnerX) / 2, pcbCoreY - displayInnerY - 7.2, 0]) cube([displayInnerX, displayInnerY, displayInnerZ]);
 }
 
-module partLED() {
-    translate([6, 3.8, pcbThickness]) cube([5, 5, 1.8]);
+module partLED(h = 1.8) {
+    translate([6, 3.8, pcbThickness]) cube([5, 5, h]);
 }
 
 module partDPadSwitch() {
@@ -80,7 +81,6 @@ module partDPadSwitch() {
     
     btnX = 2.4;
     btnY = 1.2;
-    btnZ = 1;
     translate([(switchX - btnX)/2, (switchY - btnY)/2, switchZ]) cube([btnX, btnY, btnZ]);
 }
 
@@ -95,31 +95,33 @@ module partDPad() {
 }
 
 module nuggetPCB(h=pcbThickness) {
-    partsNeoPixelHeader();
-    partsUSBPort();
-    partsS2Mini();
-    partDisplay();
-    partLED();
-    partDPad();
-    
-    color([0, 0, 0]) difference() {
-        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-        polygon(
-            points=[
-                [0, 8.6],
-                [0, pcbCoreY],
-                [earTipLeftX, earTipsY],
-                [14.5, pcbCoreY],
-                [27.5, pcbCoreY],
-                [earTipRightX, earTipsY],
-                [pcbCoreX, pcbCoreY],
-                [pcbCoreX, 8.6],
-                [33.7, 0],
-                [8.3, 0],
-            ]
-        );
+    translate([0, 0, 0]) {
+        partsNeoPixelHeader();
+        partsUSBPort();
+        partsS2Mini();
+        partDisplay();
+        partLED();
+        partDPad();
         
-        partsEarHoles();
+        color([0, 0, 0]) difference() {
+            linear_extrude(height = h, center = false, convexity = 10, twist = 0)
+            polygon(
+                points=[
+                    [0, 8.6],
+                    [0, pcbCoreY],
+                    [earTipLeftX, earTipsY],
+                    [14.5, pcbCoreY],
+                    [27.5, pcbCoreY],
+                    [earTipRightX, earTipsY],
+                    [pcbCoreX, pcbCoreY],
+                    [pcbCoreX, 8.6],
+                    [33.7, 0],
+                    [8.3, 0],
+                ]
+            );
+            
+            partsEarHoles();
+        }
     }
 }
 
@@ -200,48 +202,51 @@ module nuggetLowerLayer(h=acrylicThickness) {
 }
 
 module nuggetScrewLayer(h=acrylicThickness) {
-    // TODO: CHECK IF THIS IS CORRECT - I GUESSED
-    // TODO: CHECK THE HOLE SIZE
-    
-    color(flatui[1]) union() {
-        difference() {
-            nuggetLayer(h);
-            translate([0, 0, -h/2]) nuggetPCB(h=h*2);
-            nuggetUSBPort(h=h*2);
-            translate([7.25, 59.1, 0]) cylinder(30, d=m3HoleD, true);
-            translate([7.25+27.5, 59.1, 0]) cylinder(30, d=m3HoleD, true);
+    nuggetPCB();
+    // TODO: Need to cut down into plastic for this.
+    color(flatui[1]) difference() {
+        union() {
+            difference() {
+                nuggetLayer(h);
+                translate([0, 0, -h]) nuggetPCB(h=h*3);
+                nuggetUSBPort(h=h*2);
+                partsEarHoles(h=h*3);
+            }
+            
+            // Bottom barrier
+            linear_extrude(height = h, center = false, convexity = 10, twist = 0)
+            polygon(
+                points=[
+                    [0, 1.5],
+                    [42, 1.5],
+                    [33.7, 0],
+                    [8.3, 0],
+                ]
+            );
+            
+            // Ear barrier
+            linear_extrude(height = h, center = false, convexity = 10, twist = 0)
+            polygon(
+                points=[
+                    [0, 48.6],
+                    [7.25, 59.6],
+                    [14.5, 48.6],
+                ]
+            );
+            
+            linear_extrude(height = h, center = false, convexity = 10, twist = 0)
+            polygon(
+                points=[
+                    [0+27.5, 48.6],
+                    [7.25+27.5, 59.6],
+                    [14.5+27.5, 48.6],
+                ]
+            );
         }
-        
-        // Bottom barrier
-        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-        polygon(
-            points=[
-                [0, 1.5],
-                [42, 1.5],
-                [33.7, 0],
-                [8.3, 0],
-            ]
-        );
-        
-        // Ear barrier
-        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-        polygon(
-            points=[
-                [0, 48.6],
-                [7.25, 59.6],
-                [14.5, 48.6],
-            ]
-        );
-        
-        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-        polygon(
-            points=[
-                [0+27.5, 48.6],
-                [7.25+27.5, 59.6],
-                [14.5+27.5, 48.6],
-            ]
-        );
+        partsEarHoles(h=h*3);
+        nuggetPCB();
     }
+    
 }
 
 module nuggetUpperLayer(h=acrylicThickness) {
@@ -252,8 +257,6 @@ module nuggetUpperLayer(h=acrylicThickness) {
 }
 
 module nuggetDPadLayer(h=acrylicThickness) {
-    // partDisplay();
-    
     // TODO: CHECK WHAT THE DPAD SHOULD LOOK LIKE
     color(flatui[4]) difference() {
         nuggetLayer(h);
@@ -262,21 +265,19 @@ module nuggetDPadLayer(h=acrylicThickness) {
             translate([-1, -1, -h*2]) cube([44, 17.6, h*5]);
         }
         
-        // TODO: Position the LED Cover
-        translate([5, 5, -h]) cube([6.5, 6.5, h * 3]);
-        
-        // TODO: Position the DPAD
-        translate([20, 0, 0]) {
-            translate([7, 0, -h]) cube([7, 14, h * 3]);
-            translate([0, 4.5, -h]) cube([21, 5, h * 3]);
-        }
+        translate([0, 0, -acrylicThickness * 5]) partLED(h = acrylicThickness * 10);
+        translate([0, 0, -acrylicThickness * 5]) dpadButtons(h = acrylicThickness * 10);
     }
 }
 
-module nuggetScreenLayer(h=acrylicThickness) {
+module nuggetScreenLayer(h=acrylicThickness, minusPCB = false) {
     // partDisplay();
     
-    color(flatui[6]) nuggetLayer();
+    color(flatui[6]) difference() {
+        nuggetLayer();
+        translate([-5.822-5,-5.822-4,-h]) cube([53.644 + 10, 4.6 + 18.6, h * 3]);
+        if (minusPCB){translate([0, 0, -h]) nuggetPCB(h=h*3);}
+    }
 }
 
 module nuggetBack(h=acrylicThickness) {
@@ -286,13 +287,30 @@ module nuggetBack(h=acrylicThickness) {
     }
 }
 
+module dpadButtons(h=acrylicThickness) {
+    // TODO: Position the DPAD
+    translate([16, 0, pcbThickness+switchZ+btnZ]) {
+        translate([7, 0.5, 0]) cube([7, 12, h]);
+        translate([0, 4, 0]) cube([21, 5, h]);
+    }
+}
+
 module caseLayers() {
-    translate([0, 0, 8]) nuggetScreenLayer();
-    /*translate([0, 0, -3]) nuggetScrewLayer();
-    translate([0, 0, -6]) nuggetLowerLayer();
-    translate([0, 0, -9]) nuggetLowerLayer();
-    translate([0, 0, 0]) nuggetUpperLayer();
+    dpadButtons();
+    
+    translate([0, 0, -3]) nuggetScrewLayer();
+    
+    /**translate([0, 0, 9]) nuggetScreenLayer();
+    translate([0, 0, 6]) nuggetScreenLayer(minusPCB=true);
     translate([0, 0, 3]) nuggetDPadLayer();
+    translate([0, 0, 0]) nuggetUpperLayer();
+    translate([0, 0, -acrylicThickness]) nuggetScrewLayer();*/
+    
+    
+    /** translate([0, 0, -6]) nuggetLowerLayer();
+    translate([0, 0, -9]) nuggetLowerLayer();
+    
+    
     translate([0, 0, -12]) nuggetBack();*/
 }
 
@@ -309,4 +327,4 @@ module caseLayers() {
 
 
 caseLayers();
-nuggetPCB();
+// nuggetPCB();
