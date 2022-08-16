@@ -19,6 +19,10 @@ header8x1X = 2.4;
 header8x1Y = 20.32;
 header8x1Z = 8.5;
 
+switchX = 6;
+switchY = 3.6;
+switchZ = 1.4;
+
 module partsEarHoles(h=pcbThickness) {
     earHoleD = 2.6;
     translate([earTipLeftX, earTipsY - 6.4, -h]) cylinder(h*3, d=earHoleD, true);
@@ -71,18 +75,23 @@ module partLED() {
     translate([6, 3.8, pcbThickness]) cube([5, 5, 1.8]);
 }
 
+module partDPadSwitch() {
+    cube([switchX, switchY, switchZ]);
+    
+    btnX = 2.4;
+    btnY = 1.2;
+    btnZ = 1;
+    translate([(switchX - btnX)/2, (switchY - btnY)/2, switchZ]) cube([btnX, btnY, btnZ]);
+}
+
 module partDPad() {
-    switchX = 6;
-    switchY = 3.6;
-    switchZ = 1.4;
+    translate([pcbCoreX-18.2, 1, pcbThickness]) partDPadSwitch();
 
-    translate([pcbCoreX-18.2, 1, pcbThickness]) cube([switchX, switchY, switchZ]);
-
-    translate([pcbCoreX-18.2, 8.4, pcbThickness]) cube([switchX, switchY, switchZ]);
+    translate([pcbCoreX-18.2, 8.4, pcbThickness]) partDPadSwitch();
     
-    translate([pcbCoreX-6-switchX, 4.7, pcbThickness]) cube([switchX, switchY, switchZ]);
+    translate([pcbCoreX-6-switchX, 4.7, pcbThickness]) partDPadSwitch();
     
-    translate([pcbCoreX-18.6-switchX, 4.7, pcbThickness]) cube([switchX, switchY, switchZ]);
+    translate([pcbCoreX-18.6-switchX, 4.7, pcbThickness]) partDPadSwitch();
 }
 
 module nuggetPCB(h=pcbThickness) {
@@ -267,10 +276,7 @@ module nuggetDPadLayer(h=acrylicThickness) {
 module nuggetScreenLayer(h=acrylicThickness) {
     // partDisplay();
     
-    color(flatui[6]) difference() {
-        nuggetLayer();
-        translate([-5.822-5,-5.822-4,-h]) cube([53.644 + 10, 5.822 + 18.6, h * 3]);
-    }
+    color(flatui[6]) nuggetLayer();
 }
 
 module nuggetBack(h=acrylicThickness) {
@@ -281,13 +287,13 @@ module nuggetBack(h=acrylicThickness) {
 }
 
 module caseLayers() {
-    translate([0, 0, -3]) nuggetScrewLayer();
+    translate([0, 0, 8]) nuggetScreenLayer();
+    /*translate([0, 0, -3]) nuggetScrewLayer();
     translate([0, 0, -6]) nuggetLowerLayer();
     translate([0, 0, -9]) nuggetLowerLayer();
     translate([0, 0, 0]) nuggetUpperLayer();
     translate([0, 0, 3]) nuggetDPadLayer();
-    translate([0, 0, 6]) nuggetScreenLayer();
-    translate([0, 0, -12]) nuggetBack();
+    translate([0, 0, -12]) nuggetBack();*/
 }
 
 /* difference() {
@@ -302,4 +308,5 @@ module caseLayers() {
 
 
 
+caseLayers();
 nuggetPCB();
