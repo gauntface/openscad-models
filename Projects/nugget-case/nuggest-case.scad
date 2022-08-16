@@ -5,22 +5,98 @@ acrylicThickness = 3;
 
 m3HoleD = 3.4;
 
+earTipLeftX = 7.25;
+earTipRightX = 34.75;
+earTipsY = 59.6;
+
+pcbCoreX = 42;
+pcbCoreY = 48.6;
+
+s2InsetX = 1.2;
+s2MiniPCBTop = 3.6;
+
+header8x1X = 2.4;
+header8x1Y = 20.32;
+header8x1Z = 8.5;
+
+module partsEarHoles(h=pcbThickness) {
+    earHoleD = 2.6;
+    translate([earTipLeftX, earTipsY - 6.4, -h]) cylinder(h*3, d=earHoleD, true);
+    translate([earTipRightX, earTipsY - 6.4, -h]) cylinder(h*3, d=earHoleD, true);
+}
+
+module partsNeoPixelHeader() {
+    translate([0.2, pcbCoreY-header8x1Y-0.6, -header8x1Z]) cube([header8x1X, header8x1Y, header8x1Z]);
+}
+
+module partsUSBPort() {
+    usbPortX = 7.6;
+    usbPorty = 8.8;
+    usbPortz = 3.4;
+    translate([pcbCoreX-usbPortX-s2InsetX, pcbCoreY -usbPorty - 14.2, -usbPortz-s2MiniPCBTop]) cube([usbPortX, usbPorty, usbPortz]);
+}
+
+module partsS2Mini() {
+    miniX = 34;
+    miniY = 25.4;
+    miniZ = 3.6;
+    
+    miniYInset = 6.4;
+    
+    translate([pcbCoreX-miniX-s2InsetX, pcbCoreY-miniY-miniYInset, -miniZ]) cube([miniX, miniY, miniZ]);
+    
+    // Double to account for male pins
+    translate([pcbCoreX-header8x1Y-8, pcbCoreY-miniY-miniYInset, -header8x1Z-s2MiniPCBTop]) cube([header8x1Y, header8x1X*2, header8x1Z]);
+    
+    translate([pcbCoreX-header8x1Y-8, pcbCoreY-miniYInset-(header8x1X*2), -header8x1Z-s2MiniPCBTop]) cube([header8x1Y, header8x1X*2, header8x1Z]);
+}
+
+module partDisplay() {
+    displayPCBX = 35.8;
+    displayPCBY = 33.4;
+    displayPCBZ = 6;
+    translate([(pcbCoreX - displayPCBX) / 2, pcbCoreY - displayPCBY - 1.4, pcbThickness]) cube([displayPCBX, displayPCBY, displayPCBZ]);
+    
+    displayInnerX = 34.4;
+    displayInnerY = 22.8;
+    displayInnerZ = 7.2;
+    
+    // Currently not used but pulled from 3D Print Model
+    // displayVisibleX = 32;
+    // displayVisibleY = 20;
+    translate([(pcbCoreX - displayInnerX) / 2, pcbCoreY - displayInnerY - 7.2, 0]) cube([displayInnerX, displayInnerY, displayInnerZ]);
+}
+
+module partLED() {
+    translate([6, 3.8, pcbThickness]) cube([5, 5, 1.8]);
+}
+
 module nuggetPCB(h=pcbThickness) {
-    linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-    polygon(
-        points=[
-            [0, 8.6],
-            [0, 48.6],
-            [7.25, 59.6],
-            [14.5, 48.6],
-            [27.5, 48.6],
-            [34.75, 59.6],
-            [42, 48.6],
-            [42, 8.6],
-            [33.7, 0],
-            [8.3, 0],
-        ]
-    );
+    partsNeoPixelHeader();
+    partsUSBPort();
+    partsS2Mini();
+    partDisplay();
+    partLED();
+    
+    color([0, 0, 0]) difference() {
+        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
+        polygon(
+            points=[
+                [0, 8.6],
+                [0, pcbCoreY],
+                [earTipLeftX, earTipsY],
+                [14.5, pcbCoreY],
+                [27.5, pcbCoreY],
+                [earTipRightX, earTipsY],
+                [pcbCoreX, pcbCoreY],
+                [pcbCoreX, 8.6],
+                [33.7, 0],
+                [8.3, 0],
+            ]
+        );
+        
+        partsEarHoles();
+    }
 }
 
 module nuggetUSBPort(h=acrylicThickness) {
@@ -189,10 +265,6 @@ module nuggetBack(h=acrylicThickness) {
     }
 }
 
-module partDisplay() {
-    translate([5, 18.6, 0]) cube([32, 20, 10]);
-}
-
 module caseLayers() {
     translate([0, 0, -3]) nuggetScrewLayer();
     translate([0, 0, -6]) nuggetLowerLayer();
@@ -203,11 +275,16 @@ module caseLayers() {
     translate([0, 0, -12]) nuggetBack();
 }
 
-difference() {
+/* difference() {
     caseLayers();
     translate([2.2, 2.2, -16]) cylinder(30, d=m3HoleD, true);
     translate([44.8, 28.6, -16]) cylinder(30, d=m3HoleD, true);
     translate([21, 51.4, -16]) cylinder(30, d=m3HoleD, true);
-}
+}*/
+
 // TODO: Add some ventilation?
 // TODO: Add Lanyard?
+
+
+
+nuggetPCB();
