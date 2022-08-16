@@ -71,12 +71,27 @@ module partLED() {
     translate([6, 3.8, pcbThickness]) cube([5, 5, 1.8]);
 }
 
+module partDPad() {
+    switchX = 6;
+    switchY = 3.6;
+    switchZ = 1.4;
+
+    translate([pcbCoreX-18.2, 1, pcbThickness]) cube([switchX, switchY, switchZ]);
+
+    translate([pcbCoreX-18.2, 8.4, pcbThickness]) cube([switchX, switchY, switchZ]);
+    
+    translate([pcbCoreX-6-switchX, 4.7, pcbThickness]) cube([switchX, switchY, switchZ]);
+    
+    translate([pcbCoreX-18.6-switchX, 4.7, pcbThickness]) cube([switchX, switchY, switchZ]);
+}
+
 module nuggetPCB(h=pcbThickness) {
     partsNeoPixelHeader();
     partsUSBPort();
     partsS2Mini();
     partDisplay();
     partLED();
+    partDPad();
     
     color([0, 0, 0]) difference() {
         linear_extrude(height = h, center = false, convexity = 10, twist = 0)
