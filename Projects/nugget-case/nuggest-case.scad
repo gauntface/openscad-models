@@ -24,6 +24,37 @@ switchY = 3.6;
 switchZ = 1.4;
 btnZ = 1;
 
+caseLeftX = -5.822;
+caseRightX = 47.822;
+
+displayPCBX = 35.8;
+displayPCBY = 33.4;
+displayPCBZ = 6;
+
+usbPortW = 7.6;
+usbPortD = 8.8;
+usbPortH = 3.4;
+usbX = s2InsetX;
+usbY = pcbCoreY - usbPortD - 14.2;
+usbZ = -usbPortH-s2MiniPCBTop;
+
+miniX = 34;
+miniY = 25.4;
+miniZ = 3.6;
+
+miniYInset = 6.4;
+s2HeadersX = 8;
+s2HeadersBottomY = pcbCoreY-miniY-miniYInset;
+s2HeadersTopY = pcbCoreY-miniYInset-(header8x1X*2);
+
+neoPixelHeaderX = pcbCoreX-header8x1X-0.2;
+neoPixelHeaderY = pcbCoreY-header8x1Y-0.6;
+neoPixelHeaderZ = -header8x1Z;
+
+layoutPadding = pcbCoreX + 14;
+
+screenEndY = pcbCoreY - displayPCBY - 1.4-1;
+
 module partsEarHoles(h=pcbThickness) {
     earHoleD = 2.6;
     translate([earTipLeftX, earTipsY - 6.4, -h]) cylinder(h*3, d=earHoleD, true);
@@ -31,35 +62,23 @@ module partsEarHoles(h=pcbThickness) {
 }
 
 module partsNeoPixelHeader() {
-    translate([0.2, pcbCoreY-header8x1Y-0.6, -header8x1Z]) cube([header8x1X, header8x1Y, header8x1Z]);
+    translate([neoPixelHeaderX, neoPixelHeaderY, neoPixelHeaderZ]) cube([header8x1X, header8x1Y, header8x1Z]);
 }
 
 module partsUSBPort() {
-    usbPortX = 7.6;
-    usbPorty = 8.8;
-    usbPortz = 3.4;
-    translate([pcbCoreX-usbPortX-s2InsetX, pcbCoreY -usbPorty - 14.2, -usbPortz-s2MiniPCBTop]) cube([usbPortX, usbPorty, usbPortz]);
+    translate([usbX, usbY, usbZ]) cube([usbPortW, usbPortD, usbPortH]);
 }
 
 module partsS2Mini() {
-    miniX = 34;
-    miniY = 25.4;
-    miniZ = 3.6;
-    
-    miniYInset = 6.4;
-    
-    translate([pcbCoreX-miniX-s2InsetX, pcbCoreY-miniY-miniYInset, -miniZ]) cube([miniX, miniY, miniZ]);
+    translate([s2InsetX, pcbCoreY-miniY-miniYInset, -miniZ]) cube([miniX, miniY, miniZ]);
     
     // Double to account for male pins
-    translate([pcbCoreX-header8x1Y-8, pcbCoreY-miniY-miniYInset, -header8x1Z-s2MiniPCBTop]) cube([header8x1Y, header8x1X*2, header8x1Z]);
+    translate([s2HeadersX, s2HeadersBottomY, -header8x1Z-s2MiniPCBTop]) cube([header8x1Y, header8x1X*2, header8x1Z]);
     
-    translate([pcbCoreX-header8x1Y-8, pcbCoreY-miniYInset-(header8x1X*2), -header8x1Z-s2MiniPCBTop]) cube([header8x1Y, header8x1X*2, header8x1Z]);
+    translate([s2HeadersX, s2HeadersTopY, -header8x1Z-s2MiniPCBTop]) cube([header8x1Y, header8x1X*2, header8x1Z]);
 }
 
 module partDisplay() {
-    displayPCBX = 35.8;
-    displayPCBY = 33.4;
-    displayPCBZ = 6;
     translate([(pcbCoreX - displayPCBX) / 2, pcbCoreY - displayPCBY - 1.4, pcbThickness]) cube([displayPCBX, displayPCBY, displayPCBZ]);
     
     displayInnerX = 34.4;
@@ -95,7 +114,7 @@ module partDPad() {
 }
 
 module nuggetPCB(h=pcbThickness) {
-    translate([0, 0, 0]) {
+    translate([0, 0, acrylicThickness - pcbThickness + 0.00001]) {
         partsNeoPixelHeader();
         partsUSBPort();
         partsS2Mini();
@@ -125,45 +144,24 @@ module nuggetPCB(h=pcbThickness) {
     }
 }
 
-module nuggetUSBPort(h=acrylicThickness) {
-    translate([-9, 8.6+15, -h/2]) cube([12, 14, h * 2]);
+module usbSpace(h=acrylicThickness) {
+    space = 2;
+    translate([-9, usbY - space, -h]) cube([12, usbPortD + (space*2), h * 3]);
 }
 
-module nuggetLayer(h=acrylicThickness) {
-    linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-    polygon(
-        points=[
-            [-5.822, 6.258],
-            [-5.822, 50.34],
-            [7.25, 70.17],
-            [17.637, 54.422],
-            [24.363, 54.422],
-            [34.75, 70.17],
-            [47.822, 50.34],
-            [47.822, 6.258],
-            [36.170, -5.822],
-            [5.830, -5.822],
-        ]
-    );
-}
-
-module backHeaders(h=acrylicThickness) {
-    translate([7.77, 16.2, - h/2]) cube([23, 4.5, h]);
+module backHeadersSpace(h=acrylicThickness) {
+    // s2HeadersX
+    space = 0.5;
+    translate([s2HeadersX-space, s2HeadersBottomY-space, -h]) cube([header8x1Y + (space * 2), (header8x1X*2) + (space * 2), h * 3]);
     
-    translate([7.77, 16.2 + 4.5 + 13.28, - h/2]) cube([23, 4.5, h * 2]);
+    translate([s2HeadersX-space, s2HeadersTopY-space, -h]) cube([header8x1Y + (space * 2), (header8x1X*2) + (space * 2), h * 3]);
     
-    translate([36, 26.6, -h/2]) cube([6, 22, h * 2]);
+    translate([neoPixelHeaderX-space, neoPixelHeaderY-space, -h]) cube([header8x1X + (space * 2), header8x1Y + (space * 2), h * 3]);
 }
 
-module nuggetLowerLayer(h=acrylicThickness) {
-    color(flatui[2]) union() {
-        difference() {
-            nuggetLayer(h);
-            translate([0, 0, -h/2]) nuggetPCB(h=h*2);
-            nuggetUSBPort(h=h*2);
-        }
-        
-        // Bottom barrier
+module barrierAddition(h = acrylicThickness, excludeBottom=false) {
+    // Bottom barrier
+    if (!excludeBottom) {
         linear_extrude(height = h, center = false, convexity = 10, twist = 0)
         polygon(
             points=[
@@ -173,58 +171,11 @@ module nuggetLowerLayer(h=acrylicThickness) {
                 [8.3, 0],
             ]
         );
-        
-        // Ear barrier
-        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-        polygon(
-            points=[
-                [0, 48.6],
-                [7.25, 59.6],
-                [14.5, 48.6],
-                [13, 48.6],
-                [7.25, 58.1],
-                [1.5, 48.6],
-            ]
-        );
-        
-        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-        polygon(
-            points=[
-                [0+27.5, 48.6],
-                [7.25+27.5, 59.6],
-                [14.5+27.5, 48.6],
-                [13+27.5, 48.6],
-                [7.25+27.5, 58.1],
-                [1.5+27.5, 48.6],
-            ]
-        );
     }
-}
-
-module nuggetScrewLayer(h=acrylicThickness) {
-    nuggetPCB();
-    // TODO: Need to cut down into plastic for this.
-    color(flatui[1]) difference() {
+    
+    // Ear barrier
+    difference() {
         union() {
-            difference() {
-                nuggetLayer(h);
-                translate([0, 0, -h]) nuggetPCB(h=h*3);
-                nuggetUSBPort(h=h*2);
-                partsEarHoles(h=h*3);
-            }
-            
-            // Bottom barrier
-            linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-            polygon(
-                points=[
-                    [0, 1.5],
-                    [42, 1.5],
-                    [33.7, 0],
-                    [8.3, 0],
-                ]
-            );
-            
-            // Ear barrier
             linear_extrude(height = h, center = false, convexity = 10, twist = 0)
             polygon(
                 points=[
@@ -243,8 +194,64 @@ module nuggetScrewLayer(h=acrylicThickness) {
                 ]
             );
         }
-        partsEarHoles(h=h*3);
-        nuggetPCB();
+        screwHoles();
+    }
+}
+
+module screwHoles() {
+    partsEarHoles(h=100);
+    translate([0.4, 4.2, -16]) cylinder(100, d=m3HoleD, true);
+    translate([44.8, 22, -16]) cylinder(100, d=m3HoleD, true);
+    translate([21, 51.4, -16]) cylinder(100, d=m3HoleD, true);
+}
+
+module nuggetLayer(h=acrylicThickness) {
+    difference() {
+        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
+        polygon(
+            points=[
+                [caseLeftX, 6.258],
+                [caseLeftX, 50.34],
+                [7.25, 70.17],
+                [17.637, 54.422],
+                [24.363, 54.422],
+                [34.75, 70.17],
+                [caseRightX, 50.34],
+                [caseRightX, 6.258],
+                [36.170, caseLeftX],
+                [5.830, caseLeftX],
+            ]
+        );
+            screwHoles();
+    }
+}
+
+module nuggetLowerLayer(h=acrylicThickness) {
+    
+    color(flatui[2]) union() {
+        difference() {
+            nuggetLayer(h);
+            translate([0, 0, -h/2]) nuggetPCB(h=h*2);
+            usbSpace(h=h*2);
+        }
+        
+        barrierAddition();
+    }
+}
+
+module nuggetScrewLayer(h=acrylicThickness) {
+    color(flatui[1]) difference() {
+        union() {
+            difference() {
+                nuggetLayer(h);
+                translate([0, 0, -h]) nuggetPCB(h=h*3);
+                usbSpace(h=h*2);
+                partsEarHoles(h=h*3);
+            }
+            
+            barrierAddition();
+        }
+        nuggetPCB(h=3);
     }
     
 }
@@ -258,73 +265,79 @@ module nuggetUpperLayer(h=acrylicThickness) {
 
 module nuggetDPadLayer(h=acrylicThickness) {
     // TODO: CHECK WHAT THE DPAD SHOULD LOOK LIKE
-    color(flatui[4]) difference() {
-        nuggetLayer(h);
+    color(flatui[4]) union() {
         difference() {
-            translate([0, 0, -h]) nuggetPCB(h=h*3);
-            translate([-1, -1, -h*2]) cube([44, 17.6, h*5]);
+            nuggetLayer(h);
+            difference() {
+                translate([0, 0, -h]) nuggetPCB(h=h*3);
+                translate([caseLeftX-5,screenEndY-50+1,-h]) cube([53.644 + 10, 50, h * 3]);
+            }
+            
+            translate([0, 0, -acrylicThickness * 5]) partLED(h = acrylicThickness * 10);
+            translate([0, 0, -acrylicThickness * 5]) dpadButtons(h = acrylicThickness * 10);
         }
-        
-        translate([0, 0, -acrylicThickness * 5]) partLED(h = acrylicThickness * 10);
-        translate([0, 0, -acrylicThickness * 5]) dpadButtons(h = acrylicThickness * 10);
+        barrierAddition();
     }
 }
 
 module nuggetScreenLayer(h=acrylicThickness, minusPCB = false) {
-    // partDisplay();
-    
-    color(flatui[6]) difference() {
-        nuggetLayer();
-        translate([-5.822-5,-5.822-4,-h]) cube([53.644 + 10, 4.6 + 18.6, h * 3]);
-        if (minusPCB){translate([0, 0, -h]) nuggetPCB(h=h*3);}
+    color(flatui[6]) union() {
+        difference() {
+            nuggetLayer();
+            if (minusPCB){translate([0, 0, -h]) nuggetPCB(h=h*3);}
+            // Remove bottom section
+            translate([caseLeftX-5,screenEndY-50,-h]) cube([53.644 + 10, 50, h * 3]);
+        }
+        if (minusPCB){
+            translate([caseLeftX, screenEndY, 0]) cube([caseRightX - caseLeftX, 1, h]);
+            barrierAddition(excludeBottom = true);
+        }
     }
 }
 
 module nuggetBack(h=acrylicThickness) {
     color(flatui[7]) difference() {
         nuggetLayer(h);
-        backHeaders(h);
+        backHeadersSpace(h);
     }
 }
 
 module dpadButtons(h=acrylicThickness) {
-    // TODO: Position the DPAD
-    translate([16, 0, pcbThickness+switchZ+btnZ]) {
+    translate([16, 0, acrylicThickness+switchZ+btnZ]) {
         translate([7, 0.5, 0]) cube([7, 12, h]);
         translate([0, 4, 0]) cube([21, 5, h]);
     }
 }
 
 module caseLayers() {
-    dpadButtons();
+    // dpadButtons();
     
-    translate([0, 0, -3]) nuggetScrewLayer();
-    
-    /**translate([0, 0, 9]) nuggetScreenLayer();
-    translate([0, 0, 6]) nuggetScreenLayer(minusPCB=true);
+    // translate([0, 0, 0]) nuggetScrewLayer();
     translate([0, 0, 3]) nuggetDPadLayer();
-    translate([0, 0, 0]) nuggetUpperLayer();
-    translate([0, 0, -acrylicThickness]) nuggetScrewLayer();*/
-    
-    
-    /** translate([0, 0, -6]) nuggetLowerLayer();
-    translate([0, 0, -9]) nuggetLowerLayer();
-    
-    
-    translate([0, 0, -12]) nuggetBack();*/
+    translate([0, 0, 6]) nuggetScreenLayer(minusPCB=true);
+    /* translate([0, 0, 9]) nuggetScreenLayer();
+    translate([0, 0, -3]) nuggetLowerLayer();
+    translate([0, 0, -6]) nuggetLowerLayer();
+    translate([0, 0, -9]) nuggetBack();*/
 }
 
-/* difference() {
+module model() {
     caseLayers();
-    translate([2.2, 2.2, -16]) cylinder(30, d=m3HoleD, true);
-    translate([44.8, 28.6, -16]) cylinder(30, d=m3HoleD, true);
-    translate([21, 51.4, -16]) cylinder(30, d=m3HoleD, true);
-}*/
+}
 
-// TODO: Add some ventilation?
-// TODO: Add Lanyard?
+module layout() {
+    nuggetScrewLayer();
+    translate([layoutPadding, 0, 0]) nuggetDPadLayer();
+    translate([layoutPadding * 2, 0, 0]) nuggetScreenLayer(minusPCB=true);
+    translate([layoutPadding * 3, 0, 0]) nuggetScreenLayer();
+    translate([layoutPadding * 4, 0, 0]) nuggetLowerLayer();
+    translate([layoutPadding * 5, 0, 0]) nuggetLowerLayer();
+    translate([layoutPadding * 6, 0, 0]) nuggetBack();
+}
 
+module laserDesign() {
+    projection(cut = true) translate([-layoutPadding, 0, -acrylicThickness / 2]) nuggetScrewLayer();
+    projection(cut = false) translate([0, 0, -acrylicThickness / 2]) layout();
+}
 
-
-caseLayers();
-// nuggetPCB();
+model();
