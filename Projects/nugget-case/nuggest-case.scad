@@ -336,8 +336,9 @@ module layout() {
 }
 
 module laserDesign() {
+    $fn=20;
     projection(cut = true) translate([-layoutPadding, 0, -acrylicThickness / 2]) nuggetScrewLayer();
     projection(cut = false) translate([0, 0, -acrylicThickness / 2]) layout();
 }
 
-model();
+laserDesign();
