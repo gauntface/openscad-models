@@ -130,15 +130,15 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="63.999999"
-     inkscape:cx="486.85157"
-     inkscape:cy="212.13281"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="550.6594"
+     inkscape:cy="203.11642"
      inkscape:window-width="3840"
      inkscape:window-height="2083"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g13776" />
+     inkscape:current-layer="svg5480" />
   <title
      id="title5476">OpenSCAD Model</title>
   <metadata
@@ -306,7 +306,7 @@
        sodipodi:nodetypes="scccccccccccccss"
        transform="matrix(0,1,1,0,239.0274,37.414292)" />
     <path
-       style="color:#000000;fill:none;stroke:#00ff00;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="color:#000000;fill:none;stroke:#00f000;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m -42.761865,-59.695414 c -0.91262,-1.03e-4 -1.659949,0.752502 -1.659847,1.666048 1.88e-4,0.05324 0.01595,0.105256 0.02119,0.15813 l -0.700732,0.703833 v 0.847493 h 5.16e-4 c -0.0022,-0.126919 0.04474,-0.254574 0.141594,-0.351916 l 1.031461,-1.036629 c 0.0089,0.09359 -0.03906,-0.276129 -0.04393,-0.321425 -1.03e-4,-0.671565 0.541569,-1.216013 1.209746,-1.215946 0.667975,2.21e-4 1.209331,0.544584 1.209228,1.215946 -5.25e-4,0.121479 -0.01916,0.242192 -0.05529,0.358118 0.004,-0.01217 0.0078,-0.0244 0.01137,-0.03669 l 1.031462,1.036629 c 0.09581,0.09629 0.143117,0.222264 0.14211,0.347782 V -57.1674 l -0.701766,-0.703833 c 0.0052,-0.0532 0.02109,-0.104561 0.02119,-0.15813 1.01e-4,-0.913329 -0.745894,-1.665835 -1.658296,-1.666048 z"
        id="rect12344-6-5-5-4"
        sodipodi:nodetypes="scccccsccccccsccccss"

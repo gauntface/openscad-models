@@ -23,6 +23,8 @@ header8x1Z = 8.5;
 switchX = 6;
 switchY = 3.6;
 switchZ = 1.8;
+btnX = 2.4;
+btnY = 1.2;
 btnZ = 1;
 
 caseLeftX = -5.822;
@@ -31,6 +33,9 @@ caseRightX = 47.822;
 displayPCBW = 35.8;
 displayPCBD = 33.6;
 displayPCBH = 6.1;
+displayX = (pcbCoreX - displayPCBW) / 2;
+displayY = 47.2-displayPCBD;
+displaySpace = 1;
 
 usbPortW = 7.6;
 usbPortD = 8.8;
@@ -67,8 +72,6 @@ dpadRow1Y = 0.5;
 dpadRow2Y = dpadRow1Y + 0.4 + switchY;
 dpadRow3Y = dpadRow2Y + 0.4 + switchY;
 
-screenEndY = 47.2-displayPCBD;
-
 module partsEarHoles(h=pcbThickness) {
     holeY = earTipsY - 5.6 - (m2D/2);
     translate([earTipLeftX, holeY, -h]) cylinder(h*3, d=m2D, true);
@@ -80,7 +83,7 @@ module partsNeoPixelHeader() {
 }
 
 module partsUSBPort() {
-    translate([usbX, usbY, usbZ]) cube([usbPortW, usbPortD, usbPortH]);
+    color([1, 1, 1]) translate([usbX, usbY, usbZ]) cube([usbPortW, usbPortD, usbPortH]);
 }
 
 module partsS2Mini() {
@@ -93,7 +96,7 @@ module partsS2Mini() {
 }
 
 module partDisplay() {
-    translate([(pcbCoreX - displayPCBW) / 2, pcbCoreY - displayPCBD - 1.4, pcbThickness]) cube([displayPCBW, displayPCBD, displayPCBH]);
+    translate([displayX, displayY, pcbThickness]) cube([displayPCBW, displayPCBD, displayPCBH]);
     
     displayInnerX = 34.4;
     displayInnerY = 22.8;
@@ -111,10 +114,7 @@ module partLED(h = ledH) {
 
 module partDPadSwitch() {
     cube([switchX, switchY, switchZ]);
-    
-    btnX = 2.4;
-    btnY = 1.2;
-    translate([(switchX - btnX)/2, (switchY - btnY)/2, switchZ]) cube([btnX, btnY, btnZ]);
+    color([1,1,1]) translate([(switchX - btnX)/2, (switchY - btnY)/2, switchZ]) cube([btnX, btnY, btnZ]);
 }
 
 module partDPad() {    
@@ -133,39 +133,37 @@ module partDPad() {
 }
 
 module nuggetPCB(h=pcbThickness) {
-    translate([0, 0, -pcbThickness]) {
-        partsNeoPixelHeader();
-        partsUSBPort();
-        partsS2Mini();
-        partDisplay();
-        partLED();
-        partDPad();
+    partsNeoPixelHeader();
+    partsUSBPort();
+    partsS2Mini();
+    partDisplay();
+    partLED();
+    partDPad();
+    
+    color([0, 0, 0]) difference() {
+        linear_extrude(height = h, center = false, convexity = 10, twist = 0)
+        polygon(
+            points=[
+                [0, 8.6],
+                [0, pcbCoreY],
+                [earTipLeftX, earTipsY],
+                [14.5, pcbCoreY],
+                [27.5, pcbCoreY],
+                [earTipRightX, earTipsY],
+                [pcbCoreX, pcbCoreY],
+                [pcbCoreX, 8.6],
+                [33.7, 0],
+                [8.3, 0],
+            ]
+        );
         
-        color([0, 0, 0]) difference() {
-            linear_extrude(height = h, center = false, convexity = 10, twist = 0)
-            polygon(
-                points=[
-                    [0, 8.6],
-                    [0, pcbCoreY],
-                    [earTipLeftX, earTipsY],
-                    [14.5, pcbCoreY],
-                    [27.5, pcbCoreY],
-                    [earTipRightX, earTipsY],
-                    [pcbCoreX, pcbCoreY],
-                    [pcbCoreX, 8.6],
-                    [33.7, 0],
-                    [8.3, 0],
-                ]
-            );
-            
-            partsEarHoles();
-        }
+        partsEarHoles();
     }
 }
 
 module usbSpace(h=acrylicThickness) {
     space = 2;
-    translate([-9, usbY - space, -h]) cube([12, usbPortD + (space*2), h * 3]);
+    translate([-10, usbY - space, -h]) cube([12, usbPortD + (space*2), h * 3]);
 }
 
 module backHeadersSpace(h=acrylicThickness) {
@@ -184,23 +182,8 @@ module ledSpace(h = acrylicThickness) {
     translate([ledX - (space/2), ledY - (space/2), -h]) cube([wh, wh, h * 3]);
 }
 
-module dpadSpace(h = acrylicThickness) {
-    lrW = 21.2;
-    lrH = 4.8;
-    
-    udW = 6.8;
-    udH = 12.8;
-    
-    lrSwitchW = dpadCol3X - dpadCol1X + switchX;
-    lrX = dpadCol1X - ((lrW - lrSwitchW) / 2);
-    lrY = dpadRow2Y - ((lrH - switchY) / 2);
-    
-    udSwitchH = dpadRow3Y - dpadRow1Y + switchY;
-    udX = dpadCol2X - ((udW - switchX) / 2);
-    udY = dpadRow1Y - ((udH - udSwitchH) / 2);
-    
-    translate([lrX, lrY, -h]) cube([lrW, lrH, h * 3]);
-    translate([udX, udY, -h]) cube([udW, udH, h * 3]);
+module displaySpace(h = acrylicThickness) {
+    translate([displayX - (displaySpace/2), displayY - (displaySpace/2), -h]) cube([displayPCBW + displaySpace, displayPCBD + displaySpace, h * 3]);
 }
 
 module barrierAddition(h = acrylicThickness, excludeBottom=false) {
@@ -288,21 +271,22 @@ module nuggetScrewLayer(h=acrylicThickness) {
             difference() {
                 nuggetLayer(h);
                 translate([0, 0, -h]) nuggetPCB(h=h*3);
-                usbSpace(h=h*2);
-                partsEarHoles(h=h*3);
             }
             
             barrierAddition();
         }
-        nuggetPCB(h=3);
+        usbSpace();
+        translate([0, 0, 1.5]) nuggetPCB(h=3);
     }
-    
 }
 
 module nuggetUpperLayer(h=acrylicThickness) {
-    color(flatui[3]) difference() {
-        nuggetLayer(h);
-        translate([0, 0, -h]) nuggetPCB(h=h*3);
+    color(flatui[3]) union() {
+        difference() {
+            nuggetLayer(h);
+            translate([0, 0, -h]) nuggetPCB(h=h*3);
+        }
+        barrierAddition(excludeBottom=true);
     }
 }
 
@@ -310,49 +294,20 @@ module nuggetDPadLayer(h=acrylicThickness) {
     color(flatui[4]) union() {
         difference() {
             nuggetLayer(h);
-            difference() {
-                translate([0, 0, -h]) nuggetPCB(h=h*3);
-                translate([caseLeftX-5,screenEndY-50+1,-h]) cube([53.644 + 10, 50, h * 3]);
-            }
             
             ledSpace();
-            dpadSpace();
+            displaySpace();
+            dpadButtons();
         }
         barrierAddition(excludeBottom = true);
     }
 }
 
 module nuggetScreenLayer(h=acrylicThickness) {
-    color(flatui[6]) union() {
-        difference() {
-            nuggetLayer();
-            // Remove bottom section
-            translate([caseLeftX-5,screenEndY-50,-h]) cube([53.644 + 10, 50, h * 3]);
-        }
-    }
-}
-
-module nuggetScreenSpaceLayer(h = acrylicThickness) {
-    ledXEnd = ledX + ledWH + 0.5;
-    space = ((dpadCol1X - ledXEnd) / 2);
-    coverX = ledXEnd + space;
-    
-    color(flatui[8]) union() {
-        difference() {
-            nuggetLayer();
-            difference() {
-                translate([0, 0, -h]) nuggetPCB(h=h*3);
-                translate([-50 + coverX, -50 + screenEndY, -h]) cube([50, 50, h * 3]);
-            }
-            ledSpace();
-            
-            translate([coverX, -50 + screenEndY, -h]) cube([50, 50, h*3]);
-            translate([-10, -50 + ledY - 0.5 - space, -h]) cube([50, 50, h*3]);
-        }
-        
-        translate([caseLeftX, screenEndY, 0]) cube([caseRightX - caseLeftX, 1, h]);
-        barrierAddition(excludeBottom = true);
-        
+    color(flatui[6]) difference() {
+        nuggetLayer();
+        // Remove bottom section
+        translate([caseLeftX-5,displayY-displaySpace-0.25-50,-h]) cube([53.644 + 10, 50, h * 3]);
     }
 }
 
@@ -360,33 +315,47 @@ module nuggetBack(h=acrylicThickness) {
     color(flatui[7]) difference() {
         nuggetLayer(h);
         backHeadersSpace(h);
+        usbSpace(h);
     }
 }
 
 module dpadButtons(h=acrylicThickness) {
-    translate([16, 0, acrylicThickness+switchZ+btnZ]) {
-        translate([7, 0.5, 0]) cube([7, 12, h]);
-        translate([0, 4, 0]) cube([21, 5, h]);
-    }
+    cutSize = 0.25;
+    
+    // UP
+    translate([dpadCol2X+(switchX/2), dpadRow3Y+((switchY)/2), 0])
+    cylinder(h*3, d=m2D, true);
+    
+    // DOWN
+    translate([dpadCol2X+(switchX/2), dpadRow1Y+((switchY)/2), 0])
+    cylinder(h*3, d=m2D, true);
+    
+    // LEFT
+    translate([dpadCol1X+(switchX/2), dpadRow2Y+((switchY)/2), 0])
+    cylinder(h*3, d=m2D, true);
+    
+    // Right
+    translate([dpadCol3X+(switchX/2), dpadRow2Y+((switchY)/2), 0])
+    cylinder(h*3, d=m2D, true);
+    
 }
 
 module caseLayers() {
+    //nuggetDPadLayer();
+    // translate([0,0, acrylicThickness]) nuggetScreenLayer();
+    translate([0, 0, -acrylicThickness]) nuggetUpperLayer();
+    //translate([0, 0, -acrylicThickness*2]) nuggetScrewLayer();
+    //translate([0, 0, -acrylicThickness*3]) nuggetLowerLayer();
+    //translate([0, 0, -acrylicThickness*4]) nuggetLowerLayer();
+    //translate([0, 0, -acrylicThickness*5]) nuggetBack();
     
-    // translate([0, 0, 0]) nuggetScrewLayer();
-    translate([0, 0, 3]) nuggetDPadLayer();
-    translate([0, 0, 6]) nuggetScreenSpaceLayer();
-    // translate([0, 0, 9]) nuggetScreenLayer();
-    //translate([0, 0, -3]) nuggetLowerLayer();
-    //translate([0, 0, -6]) nuggetLowerLayer();
-    // translate([0, 0, -9]) nuggetBack();
-    
-    nuggetPCB();
+    translate([0, 0, -pcbThickness-displayPCBH + 3]) nuggetPCB();
 }
 
 module layout() {
     nuggetScrewLayer();
     translate([layoutPadding, 0, 0]) nuggetDPadLayer();
-    translate([layoutPadding * 2, 0, 0]) nuggetScreenSpaceLayer();
+    translate([layoutPadding * 2, 0, 0]) nuggetUpperLayer();
     translate([layoutPadding * 3, 0, 0]) nuggetScreenLayer();
     translate([layoutPadding * 4, 0, 0]) nuggetLowerLayer();
     translate([layoutPadding * 5, 0, 0]) nuggetLowerLayer();
