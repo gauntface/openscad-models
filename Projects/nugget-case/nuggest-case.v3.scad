@@ -146,29 +146,48 @@ module spaceRightScrew(h=acrylicThickness) {
     translate([42.098+1.5, catHeight-52.375+12, -h]) cylinder(h*3, d=m2D, true);
 }
 
-module pcbSpace(h=acrylicThickness) {
-    translate([0, 0, -h]) linear_extrude(height = h*3, center = false, convexity = 10, twist = 0)
-    polygon(
-        points=[
-            [8.4, 0],
-            [33.8, 0],
-            [42.098, 7.998],
-            [42.098, 47.998],
-            [27.6, 47.998],
-            [14.6, 47.998],
-            [0.099, 47.998],
-            [0.099, 7.998],
-        ]
-    );
+module spacePcb(h=acrylicThickness, includeEars=false) {
+    translate([0, 0, -h]) linear_extrude(height = h*3, center = false, convexity = 10, twist = 0) union() {
+        polygon(
+            points=[
+                [8.198, -0.5],
+                [34.002, -0.5],
+                [42.598, 7.785],
+                [42.598, 48.498],
+                [-0.401, 48.498],
+                [-0.401, 7.785],
+            ]
+        );
+
+        if (includeEars) {
+            // Right Ear
+            polygon(
+                points=[
+                    [42.598, 48.498],
+                    [34.849, 59.908],
+                    [27.331, 48.498],
+                ]
+            );
+            
+            // Left Ear
+            polygon(
+                points=[
+                    [14.869, 48.498],
+                    [7.348, 59.908],
+                    [-0.401, 48.498],
+                ]
+            );
+        }
+    }
 }
 
 module spaceBottomRidge(h=acrylicThickness) {
     linear_extrude(height = h, center = false, convexity = 10, twist = 0)
     polygon(
         points=[
-            [8.3, 0],
-            [33.9, 0],
-            [36, 1.5],
+            [8, -0.5],
+            [35, -0.5],
+            [37, 1.5],
             [6, 1.5],
         ]
     );
@@ -245,25 +264,24 @@ module layerAbovePCB(h=acrylicThickness) {
     color(flatui[3]) union() {
         difference() {
             caseLayer(h);
-            pcbSpace();
+            spacePcb();
         }
-        translate([0, ledY+ledWD, 0]) cube([4, h, h]);
-        translate([42.098-4, ledY+ledWD, 0]) cube([4, h, h]);
+        translate([-0.401, ledY+ledWD, 0]) cube([4, h, h]);
+        translate([42.598-4, ledY+ledWD, 0]) cube([4, h, h]);
     }
 }
 
 module layerPCBScrew(h=acrylicThickness) {
-    
     color(flatui[1]) difference() {
         union() {
             difference() {
                 caseLayer(h);
-                pcbSpace();
+                spacePcb();
             }
             spaceBottomRidge();
         }
         usbSpace();
-        translate([0, 0, 1.5]) pcb(h=3);
+        translate([0, 0, 2]) spacePcb(h=1, includeEars = true);
     }
 }
 
@@ -273,6 +291,8 @@ module model() {
     translate([0, 0, -acrylicThickness]) layerAbovePCB();
     translate([0, 0, -acrylicThickness*2]) layerPCBScrew();
     translate([0, 0, -pcbThickness-displayH + 3]) pcb();
+    
+    // spacePcb(includeEars=false);
 }
 
 layoutPadding = 50;
