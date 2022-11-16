@@ -4,7 +4,7 @@ include <../../libs/screw-sizes.scad>;
 pcbThickness = 1.57;
 acrylicThickness = 3;
 
-m2D = ("m2");
+m2D = screwDiameter("m2");
 
 catHeight = 59.098;
 caseLayerSpace = 2;
@@ -49,12 +49,12 @@ module partNeoPixelHeader() {
 dpadSwitchW = 6.239;
 dpadSwitchD = 3.742;
 dpadSwitchH = 2.8;
-dpadCol1X = 17.344;
-dpadCol2X = 23.631;
-dpadCol3X = 29.854;
-dpadRow1Y = catHeight-57.994;
-dpadRow2Y = catHeight-54.164;
-dpadRow3Y = catHeight-50.311;
+dpadCol1X = 17.404;
+dpadCol2X = 23.691;
+dpadCol3X = 29.914;
+dpadRow1Y = catHeight-50.371;
+dpadRow2Y = catHeight-54.224;
+dpadRow3Y = catHeight-58.054;
 module partDpad() {
     c = [246/255, 229/255, 141/255];
     // Left
@@ -139,7 +139,7 @@ module spaceLED(h=acrylicThickness) {
 module spaceDisplay(h=acrylicThickness) {
     space = 1.5;
     hs = space/2;
-    translate([displayX-hs, displayY-hs, -h]) cube([displayW+space, displayD+space, h*3]);
+    translate([displayX-hs, displayY-(hs/2), -h]) cube([displayW+space, displayD+hs, h*3]);
 }
 
 module spaceRightScrew(h=acrylicThickness) {
@@ -150,12 +150,14 @@ module spacePcb(h=acrylicThickness, includeEars=false) {
     translate([0, 0, -h]) linear_extrude(height = h*3, center = false, convexity = 10, twist = 0) union() {
         polygon(
             points=[
-                [8.198, -0.5],
-                [34.002, -0.5],
-                [42.598, 7.785],
-                [42.598, 48.498],
-                [-0.401, 48.498],
-                [-0.401, 7.785],
+                [8.299, catHeight-59.348], // bottom left
+                [33.901, catHeight-59.348],
+                [42.348, catHeight-51.206],
+                [42.348, catHeight-11.025],
+                [27.465, catHeight-10.850],
+                [14.735, catHeight-10.850],
+                [-0.151, catHeight-11.025],
+                [-0.151, catHeight-51.206],
             ]
         );
 
@@ -163,18 +165,18 @@ module spacePcb(h=acrylicThickness, includeEars=false) {
             // Right Ear
             polygon(
                 points=[
-                    [42.598, 48.498],
-                    [34.849, 59.908],
-                    [27.331, 48.498],
+                    [27.465, catHeight-10.850],
+                    [34.849, catHeight--0.355],
+                    [42.348, catHeight-11.025],
                 ]
             );
             
             // Left Ear
             polygon(
                 points=[
-                    [14.869, 48.498],
-                    [7.348, 59.908],
-                    [-0.401, 48.498],
+                    [-0.151, catHeight-11.025],
+                    [7.348, catHeight--0.355],
+                    [14.735, catHeight-10.850],
                 ]
             );
         }
@@ -199,6 +201,11 @@ module usbSpace(h=acrylicThickness) {
     translate([-10, s2USBY-hs, -h]) cube([15, s2USBD + space, h * 3]);
 }
 
+module caseScrews() {
+    translate([-0.151-3, s2USBY-6, -acrylicThickness*10]) cylinder(acrylicThickness*20, d=m2D, true);
+    translate([42.348+3, catHeight-51.206+20.0905, -acrylicThickness*10]) cylinder(acrylicThickness*20, d=m2D, true);
+}
+
 /** 
  *
  * Case Layer
@@ -209,20 +216,21 @@ module caseLayer(h=acrylicThickness) {
         linear_extrude(height = h, center = false, convexity = 10, twist = 0)
         polygon(
             points=[
-                [7.190, catHeight-62.098],
-                [35.010, catHeight-62.098],
-                [45.098, catHeight-52.375],
-                [45.098, catHeight-10.200],
-                [34.849, catHeight--5.353],
-                [25.984, catHeight-8.100],
-                [16.216, catHeight-8.100],
-                [7.348, catHeight--5.353],
-                [-2.901, catHeight-10.200],
-                [-2.901, catHeight-52.375],
+                [5.879, catHeight-65.348], // Bottom left
+                [36.322, catHeight-65.348],
+                [48.348, catHeight-53.756],
+                [48.348, catHeight-9.226],
+                [34.849, catHeight--11.260],
+                [24.233, catHeight-4.850],
+                [17.966, catHeight-4.850],
+                [7.348, catHeight--11.258],
+                [-6.151, catHeight-9.226],
+                [-6.151, catHeight-53.757],
             ]
         );
         
         partsEarHoles();
+        caseScrews();
     }
 }
 
@@ -232,20 +240,24 @@ module caseLayer(h=acrylicThickness) {
  *
  */
 module layerDpad(h=acrylicThickness) {
-    hx = dpadSwitchW / 2;
-    hy = dpadSwitchD / 2;
+    padding = 0.5;
+    paddingDouble = padding * 2;
     
     color(flatui[4]) difference() {
         caseLayer(h);
         
         // Left
-        translate([dpadCol1X+hx, dpadRow2Y+hy, -h]) cylinder(h*3, d=1, true);
+        translate([dpadCol1X-padding, dpadRow2Y-padding, -h])
+            cube([dpadSwitchW+paddingDouble, dpadSwitchD+paddingDouble, h*3]);
         // Right
-        translate([dpadCol3X+hx, dpadRow2Y+hy, -h]) cylinder(h*3, d=1, true);
+        translate([dpadCol3X-padding, dpadRow2Y-padding, -h])
+            cube([6.239+paddingDouble, 3.742+paddingDouble, h*3]);
         // Down
-        translate([dpadCol2X+hx, dpadRow1Y+hy, -h]) cylinder(h*3, d=1, true);
+        translate([dpadCol2X-padding, dpadRow3Y-padding, -h])
+            cube([6.239+paddingDouble, 3.742+paddingDouble, h*3]);
         // Up
-        translate([dpadCol2X+hx, dpadRow3Y+hy, -h]) cylinder(h*3, d=1, true);
+        translate([dpadCol2X-padding, dpadRow1Y-padding, -h])
+            cube([6.239+paddingDouble, 3.742+paddingDouble, h*3]);
         
         spaceLED();
         spaceDisplay();
@@ -256,7 +268,7 @@ module layerScreenCover(h=acrylicThickness) {
     space=1;
     color(flatui[5]) difference() {
         caseLayer(h);
-        translate([-4, displayY-space-50, -h]) cube([50, 50, h*3]);
+        translate([-10, displayY-space-50, -h]) cube([80, 50, h*3]);
     }
 }
 
@@ -286,7 +298,7 @@ module layerPCBScrew(h=acrylicThickness) {
 }
 
 module model() {
-    // translate([0, 0, acrylicThickness]) layerScreenCover();
+    translate([0, 0, acrylicThickness]) layerScreenCover();
     layerDpad();
     translate([0, 0, -acrylicThickness]) layerAbovePCB();
     translate([0, 0, -acrylicThickness*2]) layerPCBScrew();
@@ -295,8 +307,9 @@ module model() {
     // spacePcb(includeEars=false);
 }
 
-layoutPadding = 50;
+layoutPadding = 60;
 module layout() {
+    
     layerPCBScrew();
     translate([layoutPadding*1, 0, 0]) layerScreenCover();
     translate([layoutPadding*2, 0, 0]) layerDpad();
