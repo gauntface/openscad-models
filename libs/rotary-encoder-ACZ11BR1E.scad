@@ -52,7 +52,7 @@ module rotaryEncoder(cutout=false, thickness = 3) {
     }
 }
 
-// rotaryEncoder();
+rotaryEncoder();
 
 /*rotaryEncoder();
 
