@@ -5,15 +5,16 @@ include <../../libs/t-joint.scad>;
 /* 520mm w x 304mm H
 /* Divide sizes by 2.4 */
 
-pieceThickness = 3; /* TODO: Check that this is correct */
+pieceThickness = 3.3;
 cornerCutW = 45; // To support a ping pong ball in the corner
-backPieceW = 508; // 20" in mm
+backPieceW = 448; // 20" in mm
 backPieceH = 254; // 10" in mm
 lightDiameter = 40;
+lightRadius = lightDiameter / 2;
 lightEdgeSpacing = 5;
 wallHeight = 45;
 innerWallY = 164;
-innerWallX = 418;
+innerWallX = 358;
 insetSize = lightEdgeSpacing + lightDiameter;
 cornerInsets = 18;
 topBottomWallX = innerWallX - (cornerInsets * 2);
@@ -21,6 +22,18 @@ topBottomInsetX = cornerInsets + ((backPieceW - innerWallX) / 2);
 leftRightY = innerWallY - (cornerInsets * 2);
 leftRightInsetY = cornerInsets + ((backPieceH - innerWallY) / 2);
 
+lightYCount=3;
+lightYPadding = 85;
+lightYAvailableSpace = backPieceH - (lightYPadding * 2) + lightDiameter;
+lightYTotalSpace = lightYAvailableSpace - (lightYCount * lightDiameter);
+lightYSpacing = lightYTotalSpace / (lightYCount - 1);
+
+lightXPadding = 90;
+lightXAvailableSpace = backPieceW - (lightXPadding * 2) + lightDiameter;
+lightXCount = 7;
+lightXTotalSpace = lightXAvailableSpace - (lightXCount * lightDiameter);
+lightXSpacing = lightXTotalSpace / (lightXCount - 1);
+    
 module backPieceCornerCut() {
     CubePoints = [
       [-1,  -1,  -1],  // (0) Bottom left
@@ -84,9 +97,10 @@ module leftRightWall(forTeethRemoval = false) {
     teethZAdjustment = forTeethRemoval ? 5 : 0;
     wallHeightWithTeeth = wallHeight+teethHeight;
     
-    teethSize = 40;
+    teethSize = 24;
     insetTeeth = 15;
     
+
     difference() {
         union() {
             if (!forTeethRemoval) {
@@ -108,7 +122,18 @@ module leftRightWall(forTeethRemoval = false) {
                 createTJoint(th=teethHeight, bD=5.5, bH=2.5, sD=3.4, sL=7);
             }
         }
+        
+        lightYPadding = 4;
+        lightYTotalSpace = leftRightY - (lightDiameter * lightYCount) - lightYPadding;
+        lightYSpacing = lightYTotalSpace / (lightYCount - 1); 
+        for (i=[1:lightYCount]) {
+            lightY = (lightYPadding/2) + (lightDiameter/2) + ((lightYSpacing + lightDiameter)*(i-1));
+            translate([0, lightY, 0]) {
+                lightBulb(bulb=false, cutout=true);
+            }
+        }
     }
+   
     
     if (forTeethRemoval) {
         leftRightShelvePieces(cutout=forTeethRemoval);
@@ -127,7 +152,7 @@ module topBottomWall(forTeethRemoval = true) {
     wallHeightWithTeeth = wallHeight+teethHeight;
     
     insetTeeth = 15;
-    teethSize = 40;
+    teethSize = 24;
     innerSpace = 64;
     
     difference() {
@@ -168,6 +193,18 @@ module topBottomWall(forTeethRemoval = true) {
         translate([topBottomWallX - insetTeeth - teethSize - (innerSpace/2),pieceThickness/2, pieceThickness]) {
             createTJoint(th=teethHeight, bD=5.5, bH=2.5, sD=3.4, sL=7);
         }
+        
+        lightXPadding = 10;
+        lightXTotalSpace = topBottomWallX - (lightDiameter * lightXCount) - lightXPadding;
+        lightXSpacing = lightXTotalSpace / (lightXCount - 1); 
+        for (i=[1:lightXCount]) {
+            lightX = (lightXPadding / 2) + lightRadius + ((lightXSpacing + lightDiameter)*(i-1));
+            translate([lightX, 0, 0]) {
+                rotate([0, 0, 90]) {
+                    lightBulb(bulb=false, cutout=true);
+                }
+            }
+        }
     }
     
     if (forTeethRemoval) {
@@ -189,33 +226,40 @@ module topBottomWall(forTeethRemoval = true) {
 
 module cornerWall(forTeethRemoval=false) {
     teethHeight = forTeethRemoval ? 20 : pieceThickness;
-    teethZAdjustment = forTeethRemoval ? 5 : 0;
-    wallHeightWithTeeth = wallHeight+teethHeight;
+    wallHeightWithTeeth = wallHeight+pieceThickness;
     
     cornerWidth = 21;
     teethSize = 5;
     
     difference() {
-        union() {
-            translate([0, 0, (pieceThickness / 2) + teethZAdjustment]) {
-                cube([cornerWidth, pieceThickness, wallHeight], center=true);
-            }
-            
-            translate([-((cornerWidth - teethSize)/2), 0, -(wallHeight / 2) + teethZAdjustment]) {
-                cube([teethSize, pieceThickness, teethHeight], center=true);
-            }
-            translate([((cornerWidth - teethSize)/2), 0, -(wallHeight / 2) + teethZAdjustment]) {
-                cube([teethSize, pieceThickness, teethHeight], center=true);
+        translate([0, 0, wallHeightWithTeeth/2]) {
+            difference() {
+                union() {
+                    translate([0, 0, (pieceThickness / 2)]) {
+                        cube([cornerWidth, pieceThickness, wallHeight], center=true);
+                    }
+                    
+                    translate([-((cornerWidth - teethSize)/2), 0, -(wallHeight / 2)]) {
+                        cube([teethSize, pieceThickness, teethHeight], center=true);
+                    }
+                    translate([((cornerWidth - teethSize)/2), 0, -(wallHeight / 2)]) {
+                        cube([teethSize, pieceThickness, teethHeight], center=true);
+                    }
+                }
+                
+                translate([0,0,-(wallHeight/2) +(pieceThickness / 2)]) {
+                    createTJoint(th=teethHeight, bD=5.5, bH=2.5, sD=3.4, sL=7);
+                }
             }
         }
         
-        translate([0,0,-(wallHeight/2) +(pieceThickness / 2)]) {
-            createTJoint(th=teethHeight, bD=5.5, bH=2.5, sD=3.4, sL=7);
+        rotate([0, 0, 90]) {
+            lightBulb(bulb=false, cutout=true);
         }
     }
     
     if (forTeethRemoval) {
-        translate([0,0,-(wallHeight/2) +(pieceThickness / 2) + 0.2]) {
+        translate([0,0,pieceThickness]) {
             createTJoint(th=teethHeight, bD=5.5, bH=2.5, sD=3.4, sL=7);
         }
     }
@@ -226,66 +270,51 @@ module innerWall(forTeethRemoval=false) {
     
     // Left wall
     color(flatui[4])
-    difference() {
-        translate([insetSize, cornerInsets + ((backPieceH - innerWallY) / 2), 0]) {
-            leftRightWall(forTeethRemoval);
-        }
-        lights(showBulbs=false, showCutouts=true);
+    translate([insetSize, cornerInsets + ((backPieceH - innerWallY) / 2), 0]) {
+        leftRightWall(forTeethRemoval);
     }
     
     // Right wall
     color(flatui[5])
-    difference() {
-        translate([backPieceW - insetSize - pieceThickness, cornerInsets + ((backPieceH - innerWallY) / 2), 0]) {
-            translate([pieceThickness, leftRightY, 0]) {
-                rotate([0, 0, 180]) {
-                    leftRightWall(forTeethRemoval);
-                }
+    translate([backPieceW - insetSize - pieceThickness, cornerInsets + ((backPieceH - innerWallY) / 2), 0]) {
+        translate([pieceThickness, leftRightY, 0]) {
+            rotate([0, 0, 180]) {
+                leftRightWall(forTeethRemoval);
             }
         }
-        lights(showBulbs=false, showCutouts=true);
     }
     
     // Bottom wall
     color(flatui[6])
-    difference() {
-        translate([topBottomInsetX, insetSize, 0]) {
-            topBottomWall(forTeethRemoval);
-        }
-        lights(showBulbs=false, showCutouts=true);
+    translate([topBottomInsetX, insetSize, 0]) {
+        topBottomWall(forTeethRemoval);
     }
     
     // Top wall
     color(flatui[7])
-    difference() {
-        translate([(cornerInsets + (backPieceW - innerWallX) / 2), backPieceH - insetSize - pieceThickness, 0]) {
-            translate([topBottomWallX, pieceThickness, 0]) {
-                rotate([0, 0, 180]) {
-                    topBottomWall(forTeethRemoval);
-                }
+    translate([(cornerInsets + (backPieceW - innerWallX) / 2), backPieceH - insetSize - pieceThickness, 0]) {
+        translate([topBottomWallX, pieceThickness, 0]) {
+            rotate([0, 0, 180]) {
+                topBottomWall(forTeethRemoval);
             }
         }
-        lights(showBulbs=false, showCutouts=true);
     }
     
     cornerInset = (cornerCutW/2) + lightEdgeSpacing + 28;
     // Bottom left corner
-    difference() {
         translate([cornerInset, cornerInset, 0]) {
             rotate([0, 0, -45]) {
-                translate([0, -(pieceThickness/2), wallHeightWithTeeth/2]) {
+                translate([0, -(pieceThickness/2), 0]) {
                     cornerWall(forTeethRemoval);
                 }
             }
         }
-        lights(showBulbs=false, showCutouts=true);
-    }
     
     // Top left corner
     difference() {
         translate([cornerInset, backPieceH - cornerInset, 0]) {
             rotate([0, 0, 45]) {
-                translate([0, pieceThickness/2, wallHeightWithTeeth/2]) {
+                translate([0, pieceThickness/2, 0]) {
                     cornerWall(forTeethRemoval);
                 }
             }
@@ -294,22 +323,22 @@ module innerWall(forTeethRemoval=false) {
     }
     
     // Top right corner
-    difference() {
+    // difference() {
         translate([backPieceW - cornerInset, backPieceH - cornerInset, 0]) {
             rotate([0, 0, -45]) {
-                translate([0, pieceThickness/2, wallHeightWithTeeth/2]) {
+                translate([0, pieceThickness/2, 0]) {
                     cornerWall(forTeethRemoval);
                 }
             }
         }
-        lights(showBulbs=false, showCutouts=true);
-    }
+        // lights(showBulbs=false, showCutouts=true);
+    // }
     
     // Bottom right corner
     difference() {
         translate([backPieceW - cornerInset, cornerInset, 0]) {
             rotate([0, 0, 45]) {
-                translate([0, -(pieceThickness/2), wallHeightWithTeeth/2]) {
+                translate([0, -(pieceThickness/2), 0]) {
                     cornerWall(forTeethRemoval);
                 }
             }
@@ -319,19 +348,20 @@ module innerWall(forTeethRemoval=false) {
 }
 
 module lightBulb(cutout=true, bulb=true) {
-    lightRadius = lightDiameter / 2;
-    if (bulb) {
-        translate([0, 0, lightRadius + pieceThickness]) {
-            sphere(d=lightDiameter);
+    translate([0, 0, (wallHeight - lightDiameter) / 2]) {
+        if (bulb) {
+            translate([0, 0, lightRadius + pieceThickness]) {
+                sphere(d=lightDiameter);
+            }
         }
-    }
-    
-    neopixelCutOutX = lightDiameter * 4;
-    neopixelSize = 6;
-    neopixelSizeHalf = neopixelSize / 2;
-    if (cutout) {
-        translate([-(neopixelCutOutX/2), -neopixelSizeHalf, lightRadius + pieceThickness - neopixelSizeHalf]) {
-            cube([neopixelCutOutX, neopixelSize, neopixelSize]);
+        
+        neopixelCutOutX = lightDiameter * 4;
+        neopixelSize = 6;
+        neopixelSizeHalf = neopixelSize / 2;
+        if (cutout) {
+            translate([-(neopixelCutOutX/2), -neopixelSizeHalf, lightRadius + pieceThickness - neopixelSizeHalf]) {
+                cube([neopixelCutOutX, neopixelSize, neopixelSize]);
+            }
         }
     }
 }
@@ -360,25 +390,7 @@ module debug_lightCornerMarkers() {
 }
 
 module lights(showBulbs = false, showCutouts = true) {
-    lightRadius = lightDiameter / 2;
     wallHeightWithTeeth = wallHeight+pieceThickness;
-    lightZ = (wallHeight - lightDiameter) / 2;
-    // X
-    lightXPadding = 90;
-    // NOTE: We add lightDiameter because they are center positioned, so lightXPadding is the
-    // center of the light
-    lightXAvailableSpace = backPieceW - (lightXPadding * 2) + lightDiameter;
-    lightXCount = 8;
-    lightXTotalSpace = lightXAvailableSpace - (lightXCount * lightDiameter);
-    lightXSpacing = lightXTotalSpace / (lightXCount - 1);
-    // Y
-    lightYPadding = 85;
-    // NOTE: We add lightDiameter because they are center positioned, so lightYPadding is the
-    // center of the light
-    lightYAvailableSpace = backPieceH - (lightYPadding * 2) + lightDiameter;
-    lightYCount = 3;
-    lightYTotalSpace = lightYAvailableSpace - (lightYCount * lightDiameter);
-    lightYSpacing = lightYTotalSpace / (lightYCount - 1);
     
     echo ("------------------- X --------------------");
     echo ("backPieceW ",backPieceW);
@@ -399,7 +411,7 @@ module lights(showBulbs = false, showCutouts = true) {
         // Bottom Row
         for (i=[1:lightXCount]) {
             lightX = lightXPadding + ((lightXSpacing + lightDiameter)*(i-1));
-            translate([lightX, lightRadius + lightEdgeSpacing, lightZ]) {
+            translate([lightX, lightRadius + lightEdgeSpacing, 0]) {
                 rotate([0, 0, 90]) {
                     lightBulb(bulb=showBulbs, cutout=showCutouts);
                 }
@@ -409,7 +421,7 @@ module lights(showBulbs = false, showCutouts = true) {
         // Top Row
         for (i=[1:lightXCount]) {
             lightX = lightXPadding + ((lightXSpacing + lightDiameter)*(i-1));
-            translate([lightX, backPieceH - (lightRadius + lightXSpacing), lightZ]) {
+            translate([lightX, backPieceH - (lightRadius + lightXSpacing), 0]) {
                 rotate([0, 0, 90]) {
                     lightBulb(bulb=showBulbs, cutout=showCutouts);
                 }
@@ -419,7 +431,7 @@ module lights(showBulbs = false, showCutouts = true) {
         // Left Row
         for (i=[1:lightYCount]) {
             lightY = lightYPadding + ((lightYSpacing + lightDiameter)*(i-1));
-            translate([lightRadius + lightEdgeSpacing, lightY, lightZ]) {
+            translate([lightRadius + lightEdgeSpacing, lightY, 0]) {
                 lightBulb(bulb=showBulbs, cutout=showCutouts);
             }
         }
@@ -427,14 +439,14 @@ module lights(showBulbs = false, showCutouts = true) {
         // Right Row
         for (i=[1:lightYCount]) {
             lightY = lightYPadding + ((lightYSpacing + lightDiameter)*(i-1));
-            translate([backPieceW - (lightRadius + lightEdgeSpacing), lightY, lightZ]) {
+            translate([backPieceW - (lightRadius + lightEdgeSpacing), lightY, 0]) {
                 lightBulb(bulb=showBulbs, cutout=showCutouts);
             }
         }
 
         // Bottom Left Corner        
         bottomLeftPosition = ((cornerCutW/2) + 5) + 12;
-        translate([bottomLeftPosition, bottomLeftPosition, lightZ]) {
+        translate([bottomLeftPosition, bottomLeftPosition, 0]) {
             rotate([0,0,45]) {
                 lightBulb(bulb=showBulbs, cutout=showCutouts);
             }
@@ -442,7 +454,7 @@ module lights(showBulbs = false, showCutouts = true) {
         
         // Bottom Right Corner
         bottomRightPosition = backPieceW - ((cornerCutW/2) + 5) - 12;
-        translate([bottomRightPosition, bottomLeftPosition, lightZ]) {
+        translate([bottomRightPosition, bottomLeftPosition, 0]) {
             rotate([0,0,-45]) {
                 lightBulb(bulb=showBulbs, cutout=showCutouts);
             }
@@ -450,14 +462,14 @@ module lights(showBulbs = false, showCutouts = true) {
         
         // Top Right Corner
         topRightPosition = backPieceH - ((cornerCutW/2) + 5) - 12;
-        translate([bottomRightPosition, topRightPosition, lightZ]) {
+        translate([bottomRightPosition, topRightPosition, 0]) {
             rotate([0,0,45]) {
                 lightBulb(bulb=showBulbs, cutout=showCutouts);
             }
         }
         
         // Top Left Corner
-        translate([bottomLeftPosition, topRightPosition, lightZ]) {
+        translate([bottomLeftPosition, topRightPosition, 0]) {
             rotate([0,0,-45]) {
                 lightBulb(bulb=showBulbs, cutout=showCutouts);
             }
@@ -535,12 +547,58 @@ module topBottomShelves(cutout=true) {
     }
 }
 
+module layoutPieces() {
+    translate([0, 0, -(pieceThickness/2)]) {
+        backPiece();
+    }
+    rotate([90, 0, 0]) {
+        cornerWall();
+    }
+    
+    translate([-30, 20, -(pieceThickness/2)]) {
+        rotate([90, 0, 0]) {
+            rotate([0, 0, 90]) {
+                shelvePiece(cutout=false);
+            }
+        }
+    }
+    
+    translate([-60, 40, 0]) {
+        rotate([0, 90, 0]) {
+            leftRightWall(forTeethRemoval=false);
+        }
+    }
+    
+    translate([30, -30, 0]) {
+        rotate([90, 0, 0]) {
+            topBottomWall(forTeethRemoval=false);
+        }
+    }
+}
+
 // debug_lightCornerMarkers();
 
 $fn=20;
 
-backPiece();
-topBottomShelves(cutout=false);
-leftRightShelves(cutout=false);
-innerWall();
-lights(showBulbs=true, showCutouts=false);
+module displayProjection() {
+    // layoutPieces();
+    projection() {
+        layoutPieces();
+    }
+}
+
+module displayModel() {
+    backPiece();
+    // topBottomShelves(cutout=false);
+    // leftRightShelves(cutout=false);
+    innerWall();
+    lights(showBulbs=true, showCutouts=false);
+}
+
+displayModel = false;
+if (displayModel == true) {
+    // topBottomWall(forTeethRemoval=false);
+    displayModel();
+} else {
+    displayProjection();
+}
